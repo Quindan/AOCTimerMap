@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Leaflet + Timer + Missing + Pin/Div Switch Debug</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        html, body {
+            margin: 0; padding: 0; height: 100%;
+        }
+        #map { width: 100%; height: 100%; }
+
+        /* DivIcon container (for the 'div' icon) */
+        .marker-container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #333;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #000;
+            white-space: nowrap;
+            transition: background 0.3s;
+            transform-origin: center center;
+        }
+        .marker-container .timer-span { font-weight: bold; }
+
+        /* Div color states */
+        .div-prealarm {
+            background: rgba(255, 0, 0, 0.8); /* red */
+            color: #fff;
+        }
+        .div-postalarm {
+            background: rgba(0, 0, 255, 0.8); /* blue */
+            color: #fff;
+        }
+        .div-missing {
+            background: rgba(255, 215, 0, 0.8); /* yellow */
+            color: #000;
+        }
+
+        /* Pin color states (using CSS filters) */
+        .pin-prealarm {
+            filter: hue-rotate(150deg) saturate(2) brightness(1.2);
+        }
+        .pin-postalarm {
+            filter: hue-rotate(0deg) saturate(3) brightness(1.2);
+        }
+        .pin-missing {
+            filter: sepia(1) brightness(1.2);
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    ////////////////////////////////////////////////////////////////////////////////
+    // 1) Basic Leaflet init in CRS.Simple + tips for custom zoom range
+    ////////////////////////////////////////////////////////////////////////////////
+
+    // By default, Leaflet tries to guess min/max zoom for CRS.Simple.
+    // We can explicitly set maxZoom to something like 4 or 5 so we can definitely go above 2:
+    const map = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -4,
+        maxZoom: 5 // ensure we can zoom above 2
+    });
+
+    // Image bounds
+    const w = 2000, h = 1500;
+    const bounds = [[0,0], [h, w]];
+    L.imageOverlay('carte_ashes.png', bounds).addTo(map);
+    map.fitBounds(bounds);
+
+    // Optional: we can forcibly set an initial zoom near 1 or 3 if we want.
+    // For example, map.setZoom(3);
+    // But let's rely on fitBounds for now.
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 2) Zoom threshold for switching from pin to div
+    ////////////////////////////////////////////////////////////////////////////////
+    const ICON_SWITCH_ZOOM = 2;
+    const DEFAULT_TIMER = 1800;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 3) formatTime + parseAlarmInput
+    ////////////////////////////////////////////////////////////////////////////////
+    function formatTime(sec) {
+        const hh = Math.floor(sec / 3600);
+        const mm = Math.floor((sec % 3600) / 60);
+        const ss = sec % 60;
+        return `${hh}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+    }
+
+    function parseAlarmInput(str) {
+        if (!str) return DEFAULT_TIMER;
+        const s = str.trim().toLowerCase();
+
+        if (s.endsWith('h')) {
+            const hours = parseFloat(s.slice(0, -1));
+            if (!isNaN(hours)) return Math.floor(hours*3600);
+            return DEFAULT_TIMER;
+        }
+        if (s.endsWith('m')) {
+            const mins = parseFloat(s.slice(0, -1));
+            if (!isNaN(mins)) return Math.floor(mins*60);
+            return DEFAULT_TIMER;
+        }
+        const raw = parseFloat(s);
+        if (!isNaN(raw)) return Math.floor(raw);
+        return DEFAULT_TIMER;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 4) Markers data + partial ops placeholders
+    ////////////////////////////////////////////////////////////////////////////////
+    let markersData = [];
+    const leafletMarkers = new Map();
+
+    async function getAllMarkersFromServer() {
+        // Placeholder or real fetch to your api.php
+        const resp = await fetch('api.php');
+        if (!resp.ok) return [];
+        return await resp.json();
+    }
+    async function createMarkerOnServer(m) {
+        const r = await fetch('api.php?action=create',{
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(m)
+        });
+        if (!r.ok) return null;
+        const data = await r.json();
+        return data.success ? data.marker : null;
+    }
+    async function updateMarkerOnServer(m) {
+        const r = await fetch('api.php?action=update',{
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(m)
+        });
+        if(!r.ok) return false;
+        const d = await r.json();
+        return d.success||false;
+    }
+    async function deleteMarkerOnServer(id) {
+        const r = await fetch('api.php?action=delete',{
+            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id})
+        });
+        if(!r.ok) return false;
+        const d = await r.json();
+        return d.success||false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 5) Pin icon + Div icon creation
+    ////////////////////////////////////////////////////////////////////////////////
+    const defaultPinIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    function createDivIcon(m) {
+        const label = m.label || '(Sans label)';
+        let imgPart = '';
+        if (m.type) {
+            imgPart = `
+      <img src="icons/${m.type}.png"
+           onerror="this.style.display='none';"
+           style="width:24px; height:24px; margin-right:4px; vertical-align:middle;" />
+    `;
+        }
+        const html = `
+    <div class="marker-container">
+      ${imgPart}
+      <strong>${label}</strong><br/>
+      Temps: <span class="timer-span"></span>
+    </div>
+  `;
+        return L.divIcon({
+            className: '',
+            html: html,
+            iconSize: [140,50],
+            iconAnchor: [70,25]
+        });
+    }
+
+    function getDesiredIconType() {
+        const z = map.getZoom();
+        // If zoom < 2 => 'pin', else 'div'
+        return (z < ICON_SWITCH_ZOOM) ? 'pin' : 'div';
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 6) Rebuild Markers
+    ////////////////////////////////////////////////////////////////////////////////
+    function clearLeafletMarkers() {
+        leafletMarkers.forEach(m => m.remove());
+        leafletMarkers.clear();
+    }
+
+    async function rebuildLeafletMarkers() {
+        console.log("rebuildLeafletMarkers, markersData=", markersData);
+
+        clearLeafletMarkers();
+        const iconType = getDesiredIconType();
+
+        markersData.forEach(m => {
+            if (!m.state) m.state = 'normal';
+            m.currentIconType = iconType;
+
+            let iconObj;
+            if (iconType === 'pin') {
+                iconObj = defaultPinIcon;
+            } else {
+                iconObj = createDivIcon(m);
+            }
+
+            const markerInst = L.marker([m.lat, m.lng], { icon: iconObj }).addTo(map);
+            leafletMarkers.set(m.id, markerInst);
+
+            markerInst.on('click', async () => {
+                const choice = prompt(
+                    `Marker: ${m.label}\n`+
+                    `State: ${m.state}\n\n`+
+                    `Options:\n`+
+                    `r: reset timer -> red\n`+
+                    `m: missing -> yellow\n`+
+                    `e: edit\n`+
+                    `d: delete\n`+
+                    `other: cancel`
+                );
+                if (choice==='r') {
+                    m.state='normal';
+                    m.startTime=Date.now();
+                    const ok=await updateMarkerOnServer(m);
+                    if(ok) await refreshAllMarkers();
+                } else if (choice==='m') {
+                    m.state='missing';
+                    m.startTime=Date.now();
+                    const ok=await updateMarkerOnServer(m);
+                    if(ok) await refreshAllMarkers();
+                } else if (choice==='e') {
+                    await editMarker(m);
+                } else if (choice==='d') {
+                    const delOk=await deleteMarkerOnServer(m.id);
+                    if(delOk) await refreshAllMarkers();
+                }
+            });
+        });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 7) localUpdateIcons => apply color for both pin + div
+    ////////////////////////////////////////////////////////////////////////////////
+    function localUpdateIcons() {
+        const now = Date.now();
+
+        markersData.forEach(m => {
+            const inst = leafletMarkers.get(m.id);
+            if (!inst) return;
+
+            const elapsed = Math.floor((now - m.startTime)/1000);
+
+            if (m.currentIconType==='div') {
+                // update .timer-span text
+                const iconEl = inst._icon;
+                if (!iconEl) return;
+                const timerSpan = iconEl.querySelector('.timer-span');
+                if (timerSpan) {
+                    timerSpan.textContent = formatTime(elapsed);
+                }
+                // remove all .div-* classes, add the right one
+                if (m.state==='missing') {
+                    if (elapsed < m.alarmAfter) {
+                        setDivClass(iconEl,'div-missing');
+                    } else {
+                        setDivClass(iconEl,'div-postalarm');
+                    }
+                } else {
+                    // normal
+                    if (elapsed < m.alarmAfter) {
+                        setDivClass(iconEl,'div-prealarm');
+                    } else {
+                        setDivClass(iconEl,'div-postalarm');
+                    }
+                }
+
+            } else {
+                // pin mode
+                const pinEl = inst._icon;
+                if(!pinEl) return;
+                // remove .pin-* classes, add the right
+                if(m.state==='missing') {
+                    if(elapsed<m.alarmAfter) {
+                        setPinClass(pinEl,'pin-missing');
+                    } else {
+                        setPinClass(pinEl,'pin-postalarm');
+                    }
+                } else {
+                    // normal
+                    if(elapsed<m.alarmAfter) {
+                        setPinClass(pinEl,'pin-prealarm');
+                    } else {
+                        setPinClass(pinEl,'pin-postalarm');
+                    }
+                }
+            }
+        });
+    }
+
+    function setDivClass(el, cls) {
+        el.classList.remove('div-prealarm','div-postalarm','div-missing');
+        el.classList.add(cls);
+    }
+    function setPinClass(el, cls) {
+        el.classList.remove('pin-prealarm','pin-postalarm','pin-missing');
+        el.classList.add(cls);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 8) editMarker
+    ////////////////////////////////////////////////////////////////////////////////
+    async function editMarker(m){
+        const newLabel = prompt("New label?",m.label)||m.label;
+        m.label=newLabel;
+
+        const alarmStr = prompt("New alarm? (like '60m','1h','300')",m.alarmAfter);
+        m.alarmAfter = parseAlarmInput(alarmStr);
+
+        const newType = prompt("New type?",m.type)||"";
+        m.type=newType;
+
+        const ok=await updateMarkerOnServer(m);
+        if(ok) await refreshAllMarkers();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 9) refreshAll, polling, local timer
+    ////////////////////////////////////////////////////////////////////////////////
+    async function refreshAllMarkers(){
+        const data=await getAllMarkersFromServer();
+        markersData=data;
+        await rebuildLeafletMarkers();
+    }
+
+    function startPolling(ms){
+        setInterval(async()=>{
+            console.log("[Polling] fetching markers..");
+            await refreshAllMarkers();
+        }, ms);
+    }
+
+    function startLocalTimer(){
+        setInterval(()=>{
+            localUpdateIcons();
+        },1000);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 10) create marker on map click
+    ////////////////////////////////////////////////////////////////////////////////
+    map.on('click', async (e)=>{
+        const label = prompt("Label?","Marker")||"Marker";
+        const alarmStr=prompt("Alarm? (ex '60m','1h','300')","1h");
+        const alarmAfter=parseAlarmInput(alarmStr);
+        const type=prompt("Type? (optional)","")||"";
+
+        const newMarker={
+            label,
+            lat:e.latlng.lat,
+            lng:e.latlng.lng,
+            startTime:Date.now(),
+            alarmAfter,
+            type,
+            state:"normal"
+        };
+
+        const created=await createMarkerOnServer(newMarker);
+        if(created){
+            await refreshAllMarkers();
+        }
+    });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 11) watch zoom
+    ////////////////////////////////////////////////////////////////////////////////
+    map.on('zoomend', ()=>{
+        const z=map.getZoom();
+        console.log("zoomend triggered, current zoom=",z);
+        const desired=getDesiredIconType();
+        markersData.forEach(m=>{
+            if(m.currentIconType!==desired){
+                const inst=leafletMarkers.get(m.id);
+                if(inst){
+                    if(desired==='div'){
+                        inst.setIcon(createDivIcon(m));
+                        m.currentIconType='div';
+                    } else {
+                        inst.setIcon(defaultPinIcon);
+                        m.currentIconType='pin';
+                    }
+                }
+            }
+        });
+    });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // 12) init
+    ////////////////////////////////////////////////////////////////////////////////
+    (async function init(){
+        await refreshAllMarkers();
+        startPolling(60_000);
+        startLocalTimer();
+    })();
+</script>
+
+</body>
+</html>
