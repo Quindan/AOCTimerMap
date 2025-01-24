@@ -365,8 +365,9 @@
     // 10) create marker on map click
     ////////////////////////////////////////////////////////////////////////////////
     map.on('click', async (e)=>{
-        const label = prompt("Label?","Marker")||"Marker";
-        const alarmStr=prompt("Alarm? (ex '60m','1h','300')","1h");
+        const label = prompt("Label?", "Marker to be deleted");
+        if (label === null) return;
+        const alarmStr = prompt("Alarm? (ex 60m, 1h, 300)", "1h");
         const alarmAfter=parseAlarmInput(alarmStr);
         const type=prompt("Type? (optional)","")||"";
 
