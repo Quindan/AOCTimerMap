@@ -60,20 +60,34 @@
     ////////////////////////////////////////////////////////////////////////////////
     // 1) Basic Leaflet init in CRS.Simple + tips for custom zoom range
     ////////////////////////////////////////////////////////////////////////////////
+    const tileSize = 512; 
+    const minZoom = 4;
+    const maxZoom = 9;
 
-    // By default, Leaflet tries to guess min/max zoom for CRS.Simple.
-    // We can explicitly set maxZoom to something like 4 or 5 so we can definitely go above 2:
     const map = L.map('map', {
-        crs: L.CRS.Simple,
-        minZoom: -4,
-        maxZoom: 5 // ensure we can zoom above 2
+    center: [-240, 128],
+    zoom: minZoom,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
+    crs: L.CRS.Simple  
     });
 
-    // Image bounds
-    const w = 2000, h = 1500;
-    const bounds = [[0,0], [h, w]];
-    L.imageOverlay('carte_ashes.png', bounds).addTo(map);
-    map.fitBounds(bounds);
+    // Ajouter les tuiles
+    const tiles = L.tileLayer('https://cdn.ashescodex.com/map/20241219/{z}/{x}/{y}.webp', {
+        tileSize: tileSize,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        noWrap: true,
+    }).on('tileerror', (e) => {
+        console.warn('Tuile manquante : ', e.tile.src);
+    });
+
+    // Ajoute la couche de tuiles à la carte
+    tiles.addTo(map);
+
+    map.whenReady(() => {
+        map.invalidateSize();
+    });
 
     // Optional: we can forcibly set an initial zoom near 1 or 3 if we want.
     // For example, map.setZoom(3);
