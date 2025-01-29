@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS markers (
   alarmAfter INTEGER,
   inGameCoord TEXT,
   type TEXT,
-  state TEXT,
+  missing INTEGER,
   rarity TEXT DEFAULT 'common'
 )
 ");
@@ -48,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create') {
         // Insert a new marker
         $stmt = $db->prepare("
-            INSERT INTO markers (label, lat, lng, startTime, alarmAfter, inGameCoord, type, rarity)
-            VALUES (:label, :lat, :lng, :startTime, :alarmAfter, :inGameCoord, :type, :rarity)
+            INSERT INTO markers (label, lat, lng, startTime, alarmAfter, inGameCoord, type, rarity, missing)
+            VALUES (:label, :lat, :lng, :startTime, :alarmAfter, :inGameCoord, :type, :rarity, :missing)
         ");
         $stmt->execute([
             ':label'      => $data['label'] ?? '',
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':alarmAfter' => $data['alarmAfter'] ?? 1800,
             ':inGameCoord'=> $data['inGameCoord'] ?? '',
             ':type'       => $data['type'] ?? '',
-            ':missing'    => $data['type'] ?? 1800,
+            ':missing'    => $data['missing'] ?? 1800,
             ':rarity'     => $data['rarity'] ?? 'common' // Default value
         ]);
         $newId = $db->lastInsertId();
