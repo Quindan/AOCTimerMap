@@ -9,6 +9,7 @@ import { Rarity } from '../map/enums/rarity.enum';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonModule } from '@angular/common';
 import { FiltersService } from '../shared/services/filters.service';
 import { ResourceType } from '../map/enums/ressources';
@@ -24,7 +25,8 @@ import { ResourceType } from '../map/enums/ressources';
     MatIconModule,
     MatButtonModule,
     ButtonModule,
-    MultiSelectModule
+    MultiSelectModule,
+    TreeSelectModule
   ],
   templateUrl: './map-filters.component.html',
   styleUrl: './map-filters.component.scss'
@@ -50,7 +52,7 @@ export class MapFiltersComponent implements OnInit {
     selectedRarities: new FormControl([])
   });
 
-  resourceOptions = this.#filtersService.getRessourceOptions();
+  resourceOptions = this.#filtersService.getTreeResourceOptions();
 
   filteredResources: ResourceType[] = [];
 
@@ -118,7 +120,8 @@ export class MapFiltersComponent implements OnInit {
   }
 
   hasFormChanged(): boolean {
-    return JSON.stringify(this.filterForm.value) !== JSON.stringify(this.initialFormData);
+    //return JSON.stringify(this.filterForm.value) !== JSON.stringify(this.initialFormData);
+    return true;
   }
 
 }
