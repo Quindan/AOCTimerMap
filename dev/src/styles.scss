@@ -1,4 +1,6 @@
 @use 'assets/styles/map';
+@use 'assets/styles/icons';
+@import "primeicons/primeicons.css";
 
 @tailwind base;
 @tailwind components;
@@ -22,7 +24,7 @@ form {
             color: #44474e;
         }   
     }     
-    .p-select {
+    .p-select,.p-treeselect {
         background-color: #e0e2ec;
         border-top: none;
         border-left: none;
@@ -31,9 +33,10 @@ form {
         padding: 7px 0;
         border-radius: 4px 4px 0 0;
         margin-bottom: 20px;
-        .p-select-label {
+        .p-select-label,.p-treeselect-label {
             color: #44474e;
         } 
+
     }
 }
 
