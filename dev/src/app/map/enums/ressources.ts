@@ -2,8 +2,10 @@
 type ResourceCategory = Record<string, string>;
 export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
     wood: {
-      ash: '/assets/icons/ressources/ash.webp',
+      acacia: '/assets/icons/ressources/acacia.webp', 
+      ash: '/assets/icons/ressources/ash.webp',      
       braidwood: '/assets/icons/ressources/braidwood.webp',
+      date_palm: '/assets/icons/ressources/date_palm.webp',
       eastern_hemlock: '/assets/icons/ressources/eastern_hemlock.webp',
       oak: '/assets/icons/ressources/oak.webp',
       western_larch: '/assets/icons/ressources/western_larch.webp',
@@ -16,9 +18,12 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       wyrdstone: '/assets/icons/ressources/wyrdstone.webp',
       slate: '/assets/icons/ressources/slate.webp',      
       limestone: '/assets/icons/ressources/limestone.webp',
+      obsidian: '/assets/icons/ressources/obsidian.webp',
       quartz: '/assets/icons/ressources/quartz.webp',
+      sandstone: '/assets/icons/ressources/sandstone.webp'
     },
     plant: {
+      agave: '/assets/icons/ressources/agave.webp',
       blood_boiled_spiritbloom: '/assets/icons/ressources/blood_boiled_spiritbloom.webp',
       daffodil: '/assets/icons/ressources/daffodil.webp',
       flax: '/assets/icons/ressources/flax.webp',
@@ -26,6 +31,9 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       gloomy_pross_petals: '/assets/icons/ressources/gloomy_pross_petals.webp',
       grave_lily: '/assets/icons/ressources/grave_lily.webp',
       moonbell: '/assets/icons/ressources/moonbell.webp',
+      paintbrush: '/assets/icons/ressources/paintbrush.webp',
+      poppy: '/assets/icons/ressources/poppy.webp',
+      saguaro_cactus: '/assets/icons/ressources/saguaro_cactus.webp',
       spiritbloom: '/assets/icons/ressources/spiritbloom.webp',
       snowdrop: '/assets/icons/ressources/snowdrop.webp',
     },
@@ -38,7 +46,6 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       stellarium: '/assets/icons/ressources/stellarium.webp',
       tin: '/assets/icons/ressources/tin.webp',
       zinc: '/assets/icons/ressources/zinc.webp',
-      Sapphire: '/assets/icons/ressources/sapphire.webp',      
     },
     gem: {
       diamond: '/assets/icons/ressources/diamond.webp',
