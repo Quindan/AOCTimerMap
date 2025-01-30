@@ -39,12 +39,9 @@ export class MapFiltersComponent implements OnInit {
   // Transform the enum into an array of objects
   // resources = Object.keys(RessourceImageLinks);
   rarities = Object.keys(Rarity);
-
-  // Contrôle pour la recherche dans la liste des ressources
-  resourceSearchControl = new FormControl('');
+  resourceOptions = this.#filtersService.getTreeResourceOptions();
 
   // Liste filtrée des ressources (initialisée avec toutes les ressources)
-   // filteredResources: string[] = [...this.resources];
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
@@ -52,23 +49,8 @@ export class MapFiltersComponent implements OnInit {
     selectedRarities: new FormControl([])
   });
 
-  resourceOptions = this.#filtersService.getTreeResourceOptions();
-
-  filteredResources: ResourceType[] = [];
-
   ngOnInit() {
     this.initialFormData = this.filterForm.value;
-
-    // Filtrer dynamiquement les ressources selon l'entrée utilisateur
-    this.resourceSearchControl.valueChanges.pipe(
-      debounceTime(300), 
-      distinctUntilChanged()
-    ).subscribe((searchTerm) => {
-      const lowerCaseSearchTerm = (searchTerm || '').toLowerCase();
-      /*this.filteredResources = this.resources.filter((resource) =>
-        resource.toLowerCase().includes(lowerCaseSearchTerm)
-      );*/
-    });
   }
 
   clearMarkers() {
@@ -77,7 +59,8 @@ export class MapFiltersComponent implements OnInit {
 
   // Method to get selected resources
   getSelectedResources(): string[] {
-    return this.filterForm.get('selectedResources')?.value || [];
+    return (this.filterForm.get('selectedResources')?.value || [])
+    .map((resource: any) => resource.key);
   }
 
   getSelectedRarities(): string[] {
