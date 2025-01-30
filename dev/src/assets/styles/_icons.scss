@@ -4,19 +4,24 @@
     background-size: contain;
 }
 
+// Categories
 .my-icon-wood { background-image: url('/assets/icons/ressources/wood.webp');}
 .my-icon-stone { background-image: url('/assets/icons/ressources/stone.webp');}
 .my-icon-metal { background-image: url('/assets/icons/ressources/metal.webp');}
 .my-icon-plant {background-image: url('/assets/icons/ressources/plant.webp');}
 .my-icon-gem {background-image: url('/assets/icons/ressources/gem.webp');}
 
+// Wood
+.my-icon-acacia { background-image: url('/assets/icons/ressources/acacia.webp'); }
 .my-icon-ash { background-image: url('/assets/icons/ressources/ash.webp'); }
 .my-icon-braidwood { background-image: url('/assets/icons/ressources/braidwood.webp'); }
+.my-icon-date-palm { background-image: url('/assets/icons/ressources/date_palm.webp'); }
 .my-icon-eastern-hemlock { background-image: url('/assets/icons/ressources/eastern_hemlock.webp'); }
 .my-icon-oak { background-image: url('/assets/icons/ressources/oak.webp'); }
 .my-icon-western-larch { background-image: url('/assets/icons/ressources/western_larch.webp'); }
 .my-icon-weeping-willow { background-image: url('/assets/icons/ressources/weeping_willow.webp'); }
 
+// Stone
 .my-icon-basalt { background-image: url('/assets/icons/ressources/basalt.webp'); }
 .my-icon-gloomy-pross-petals { background-image: url('/assets/icons/ressources/gloomy_pross_petals.webp'); }
 .my-icon-gneiss { background-image: url('/assets/icons/ressources/gneiss.webp'); }
@@ -24,17 +29,25 @@
 .my-icon-wyrdstone { background-image: url('/assets/icons/ressources/wyrdstone.webp'); }
 .my-icon-slate { background-image: url('/assets/icons/ressources/slate.webp'); }
 .my-icon-limestone { background-image: url('/assets/icons/ressources/limestone.webp'); }
+.my-icon-obsidian { background-image: url('/assets/icons/ressources/obsidian.webp'); }
 .my-icon-quartz { background-image: url('/assets/icons/ressources/quartz.webp'); }
+.my-icon-sandstone { background-image: url('/assets/icons/ressources/sandstone.webp'); }
 
+// Plant
+.my-icon-agave { background-image: url('/assets/icons/ressources/agave.webp'); }
 .my-icon-blood-boiled-spiritbloom { background-image: url('/assets/icons/ressources/blood_boiled_spiritbloom.webp'); }
 .my-icon-daffodil { background-image: url('/assets/icons/ressources/daffodil.webp'); }
 .my-icon-flax { background-image: url('/assets/icons/ressources/flax.webp'); }
 .my-icon-giant-bluebell { background-image: url('/assets/icons/ressources/giant_bluebell.webp'); }
 .my-icon-grave-lily { background-image: url('/assets/icons/ressources/grave_lily.webp'); }
 .my-icon-moonbell { background-image: url('/assets/icons/ressources/moonbell.webp'); }
+.my-icon-paintbrush { background-image: url('/assets/icons/ressources/paintbrush.webp'); }
+.my-icon-poppy { background-image: url('/assets/icons/ressources/poppy.webp'); }
+.my-icon-saguaro-cactus { background-image: url('/assets/icons/ressources/saguaro_cactus.webp'); }
 .my-icon-spiritbloom { background-image: url('/assets/icons/ressources/spiritbloom.webp'); }
 .my-icon-snowdrop { background-image: url('/assets/icons/ressources/snowdrop.webp'); }
 
+// Metal
 .my-icon-copper { background-image: url('/assets/icons/ressources/copper.webp'); }
 .my-icon-gold { background-image: url('/assets/icons/ressources/gold.webp'); }
 .my-icon-iron { background-image: url('/assets/icons/ressources/iron.webp'); }
@@ -44,6 +57,7 @@
 .my-icon-tin { background-image: url('/assets/icons/ressources/tin.webp'); }
 .my-icon-zinc { background-image: url('/assets/icons/ressources/zinc.webp'); }
 
+// Gem
 .my-icon-diamond { background-image: url('/assets/icons/ressources/diamond.webp'); }
 .my-icon-emerald { background-image: url('/assets/icons/ressources/emerald.webp'); }
 .my-icon-halcyonite { background-image: url('/assets/icons/ressources/halcyonite.webp'); }
