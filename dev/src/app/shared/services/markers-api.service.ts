@@ -3,6 +3,7 @@ import { Observable, of, throwError, timer } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
 import { CustomMarker } from '../interface/marker.interface';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 export type Point = { lat: number; lng: number };
 
@@ -10,13 +11,9 @@ export type Point = { lat: number; lng: number };
   providedIn: 'root',
 })
 export class MarkersApiService {
-  #baseUrl = 'http://91.134.75.138/api.php';
   http = inject(HttpClient);
+  #baseUrl = environment.apiUrl;
 
-  // Créer un marker	POST	your-backend-endpoint.php?action=create
-  // Mettre à jour	POST	your-backend-endpoint.php?action=update
-  // Supprimer	POST	your-backend-endpoint.php?action=delete
-  // Lister tous	GET	your-backend-endpoint.php
 
   // Liste des markers mockée
   private markers: CustomMarker[] = [
@@ -25,8 +22,8 @@ export class MarkersApiService {
       label: 'Marker 1',
       lat: -236,
       lng: 103,
-      startTime: 1738104985, 
-      alarmAfter: 1738105825, 
+      startTime: 1738104985,
+      alarmAfter: 1738105825,
       inGameCoord: 'A1',
       type: 'giant_bluebell',
       rarity: 'common',
@@ -58,7 +55,7 @@ export class MarkersApiService {
     },
   ];
 
-  constructor() {}  
+  constructor() {}
 
   /**
    * Récupère la liste des markers avec un délai simulé
@@ -66,21 +63,6 @@ export class MarkersApiService {
    */
   getMarkers(): Observable<CustomMarker[]> {
     return this.http.get<CustomMarker[]>(`${this.#baseUrl}`).pipe(
-      tap((dbMarkers) => {
-        console.log('Modified Markers:', dbMarkers)
-        dbMarkers.push({
-          id: 10003,
-          label: 'Marker 3',
-          lat: -230,
-          lng: 153,
-          startTime: 1738194925, // Exemple de timestamp UNIX
-          alarmAfter: 1738195945, // 20 minutes
-          inGameCoord: 'C7',
-          type: 'giant_bluebell',
-          rarity: 'epic',
-          missing: false,
-        })
-      }),
       catchError((error) => {
         console.error('API Error:', error);
         return throwError(() => new Error('An error occurred while creating the marker.'));
@@ -112,7 +94,7 @@ export class MarkersApiService {
    * @param id The ID of the marker to update
    * @param updatedData The updated marker data
    */
-  updateMarker(id: number, updatedData: Partial<CustomMarker>): Observable<{ success: boolean }> {    
+  updateMarker(id: number, updatedData: Partial<CustomMarker>): Observable<{ success: boolean }> {
     const payload = { ...updatedData, id };
     return this.http.post<{ success: boolean }>(
       `${this.#baseUrl}?action=update`,

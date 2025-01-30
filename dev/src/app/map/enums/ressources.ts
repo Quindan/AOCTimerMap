@@ -19,7 +19,6 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       limestone: '/assets/icons/ressources/limestone.webp',
       quartz: '/assets/icons/ressources/quartz.webp',
     },
-    hunting: {},
     plant: {
       blood_boiled_spiritbloom: '/assets/icons/ressources/blood_boiled_spiritbloom.webp',
       daffodil: '/assets/icons/ressources/daffodil.webp',
@@ -43,7 +42,7 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       zinc: '/assets/icons/ressources/zinc.webp',
       Sapphire: 'Sapphire',      
     },
-    gems: {
+    gem: {
       diamond: '/assets/icons/ressources/diamond.webp',
       emerald: '/assets/icons/ressources/emerald.webp',
       halcyonite: '/assets/icons/ressources/halcyonite.webp',

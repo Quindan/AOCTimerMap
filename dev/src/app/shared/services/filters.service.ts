@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RESOURCE_CATEGORIES } from '../../map/enums/ressources.enum';
+import { RESOURCE_CATEGORIES } from '../../map/enums/ressources';
 
 @Injectable({
   providedIn: 'root'
