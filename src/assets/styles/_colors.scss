@@ -12,14 +12,14 @@ $epic-gradiant: linear-gradient(
   rgba(172, 110, 255, 0.8) 100%
 );
 
-$heroic: rgb(220, 170, 50); // Teinte dorée plus jaune
+$heroic: rgb(255, 212, 0); // Teinte dorée plus jaune
 $heroic-gradiant: linear-gradient(
   135deg,
   rgba(220, 170, 50, 0.9) 0%, // Point de départ avec une teinte dorée plus jaune
   rgba(250, 210, 70, 0.9) 100% // Point final très lumineux et doré-jaune
 );
 
-$rare: rgb(100, 175, 200);
+$rare: rgb(73, 142, 191);
 $rare-gradiant: linear-gradient(
   135deg,
   rgba(100, 175, 200, 0.8) 0%,
