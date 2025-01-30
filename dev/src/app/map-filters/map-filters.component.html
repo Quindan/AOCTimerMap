@@ -72,6 +72,81 @@
       </div>
     </ng-template>
 </p-multiselect>
+
+<p-treeselect class="w-full md:w-80" 
+  containerStyleClass="w-full" 
+  formControlName="selectedResources" 
+  [options]="resourceOptions" 
+  display="chip" 
+  filter="true"
+  [metaKeySelection]="false" 
+  selectionMode="checkbox" 
+  placeholder="Select Item" > 
+  <!-- Template pour chaque élément -->
+  <ng-template let-resource #item>
+    <div class="flex items-center gap-2">
+      <img
+        [src]="'assets/icons/ressources/' + resource.label + '.webp'"
+        style="width: 18px"
+      />
+      <div class="capitalize">{{ resource.label }}</div>
+    </div>
+  </ng-template>
+</p-treeselect>
+
+
+
+
+<p-treeSelect
+  containerStyleClass="w-full" 
+  [options]="resourceOptions"
+  formControlName="selectedResources"
+  selectionMode="checkbox"
+  placeholder="Choisir les ressources"
+  class="w-full"
+  display="chip"
+>
+  <!-- Template pour chaque élément -->
+  <ng-template let-resource #item>
+    <div class="flex items-center gap-2">
+      <img
+        [src]="'assets/icons/ressources/' + resource.label + '.webp'"
+        style="width: 18px"
+      />
+      <div class="capitalize">{{ resource.label }}</div>
+    </div>
+  </ng-template>
+
+  <!-- Icône personnalisée pour le dropdown -->
+  <ng-template #dropdownicon>
+    <i class="pi pi-map"></i>
+  </ng-template>
+
+  <!-- Icône personnalisée pour le filtre -->
+  <ng-template #filtericon>
+    <i class="pi pi-map-marker"></i>
+  </ng-template>
+
+  <!-- En-tête personnalisé -->
+  <ng-template #header>
+    <div class="font-medium px-3 py-2">Liste des ressources</div>
+  </ng-template>
+
+  <!-- Bouton pour tout supprimer -->
+  <ng-template #footer>
+    <div class="p-3 flex justify-end">
+      <p-button
+        label="Supprimer tout"
+        severity="danger"
+        text
+        size="small"
+        icon="pi pi-times"
+        (click)="filterForm.controls.selectedResources.setValue([])"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-treeSelect>
+
   
 <!-- end test prime ng -->
 
