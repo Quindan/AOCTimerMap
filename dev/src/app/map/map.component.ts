@@ -286,7 +286,7 @@ export class MapComponent implements AfterViewInit {
       className: `custom-marker custom-marker-progress`,
       html: `
         <div class="marker-container">
-          <img src="${iconUrl}" alt="marker-icon" class="marker-image" />
+          <img src="${iconUrl}" alt="marker-icon" class="marker-image rounded-full" />
           <div class="custom-badge ${rarity}"></div>
           <div class="custom-badge-position"></div>
         </div>
