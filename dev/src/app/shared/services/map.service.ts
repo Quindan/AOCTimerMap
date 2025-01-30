@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { CustomMarker } from '../interface/marker.interface';
-import { RESOURCE_CATEGORIES } from '../../map/enums/ressources.enum';
+import { RESOURCE_CATEGORIES } from '../../map/enums/ressources';
 
 @Injectable({
   providedIn: 'root'

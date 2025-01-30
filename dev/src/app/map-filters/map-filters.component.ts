@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CommonModule } from '@angular/common';
 import { FiltersService } from '../shared/services/filters.service';
-import { ResourceType } from '../map/enums/ressources.enum';
+import { ResourceType } from '../map/enums/ressources';
 
 @Component({
   selector: 'app-map-filters',
