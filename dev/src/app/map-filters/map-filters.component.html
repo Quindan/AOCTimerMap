@@ -1,0 +1,93 @@
+<div class="bg-blue-500 text-white p-4">
+    Map filters
+</div>
+
+<form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
+  <mat-form-field class="w-full">
+    <mat-label>Filtrer la rareté</mat-label>
+    <mat-select
+      formControlName="selectedRarities"
+      multiple
+    >
+      @for (rarity of rarities; track rarity) {
+      <mat-option [value]="rarity">
+        <!-- Affiche le nom de la ressource -->
+        {{ rarity }}
+      </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  
+  <!-- Start test prime ng -->
+  <p-multiselect
+    [options]="resources"
+    formControlName="selectedResources"
+    placeholder="Choisir le type de ressources" 
+    class="w-full"
+    display="chip"
+  >
+    
+  <!-- Template pour les chips -->
+  <ng-template let-resource #selectedItem>
+  </ng-template>
+
+    <!-- Template pour chaque élément -->
+    <ng-template let-resource #item>
+      <div class="flex items-center gap-2">
+        <img
+          [src]="'assets/icons/ressources/'+resource+'.webp'"
+          style="width: 18px"
+        />
+        <div class="capitalize">{{ resource.replace('_', ' ') }}</div>
+      </div>
+    </ng-template>
+  
+    <!-- Icône personnalisée pour le dropdown -->
+    <ng-template #dropdownicon>
+      <i class="pi pi-map"></i>
+    </ng-template>
+  
+    <!-- Icône personnalisée pour le filtre -->
+    <ng-template #filtericon>
+      <i class="pi pi-map-marker"></i>
+    </ng-template>
+  
+    <!-- En-tête personnalisé -->
+    <ng-template #header>
+      <div class="font-medium px-3 py-2">Liste des ressources</div>
+    </ng-template>
+  
+    
+    <ng-template #footer>
+      <div class="p-3 flex justify-end">
+        <p-button
+          label="Supprimer tout"
+          severity="danger"
+          text
+          size="small"
+          icon="pi pi-times"
+          (click)="clearAllResources()"
+        ></p-button>
+      </div>
+    </ng-template>
+</p-multiselect>
+  
+<!-- end test prime ng -->
+
+  <div class="flex items-center justify-end w-full mt-4">    
+    <button mat-raised-button (click)="clearAllFilters()" [disabled]="!filterForm.valid || !filterForm.controls.selectedResources.value" class="p-4 me-4">
+      <!-- Texte aligné à gauche -->
+      <span class="text-gray-700">Réinitialiser les filtres</span>
+
+      <!-- Icône de corbeille alignée à droite -->
+      <mat-icon class="text-red-500">delete</mat-icon>
+    </button>
+    <button mat-raised-button type="submit" [disabled]="!filterForm.valid || !hasFormChanged()" class="p-4 me-4">
+      <!-- Texte aligné à gauche -->
+      <span class="text-gray-700">Filtrer la carte</span>
+
+      <!-- Icône de corbeille alignée à droite -->
+      <mat-icon class="text-blue-500">filter_alt</mat-icon>
+    </button>
+  </div>
+</form>
