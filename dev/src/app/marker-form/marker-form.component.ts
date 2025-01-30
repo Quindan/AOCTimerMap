@@ -1,7 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { RessourceImageLinks } from '../map/enums/ressources.enum';
 import { Rarity } from '../map/enums/rarity.enum';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -13,6 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { catchError, finalize, Subscription, tap } from 'rxjs';
 import { SelectModule } from 'primeng/select';
 import { MarkersApiService } from '../shared/services/markers-api.service';
+import { RessourcesService } from '../shared/services/ressources.service';
 
 export interface MarkerForm {
   type: string, 
@@ -39,7 +39,9 @@ export interface MarkerForm {
 export class MarkerFormComponent implements OnInit, OnDestroy {
   #mapService = inject(MapService);
   #markerApiService = inject(MarkersApiService);
-  ressourceImages = Object.keys(RessourceImageLinks); // Ressources
+  #resourcesService = inject(RessourcesService);
+  // ressourceImages = Object.keys(RessourceImageLinks); // Ressources
+  ressourceImages = this.#resourcesService.getAllResources(); 
   rarities = Object.keys(Rarity); // Raretés
 
   updateTimerSubscribe: Subscription | null | undefined = null; 

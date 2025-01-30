@@ -3,7 +3,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MapService } from '../shared/services/map.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RessourceImageLinks } from '../map/enums/ressources.enum';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Rarity } from '../map/enums/rarity.enum';
@@ -11,6 +10,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CommonModule } from '@angular/common';
+import { FiltersService } from '../shared/services/filters.service';
+import { ResourceType } from '../map/enums/ressources.enum';
 
 @Component({
   selector: 'app-map-filters',
@@ -30,23 +31,28 @@ import { CommonModule } from '@angular/common';
 })
 export class MapFiltersComponent implements OnInit {
   #mapService = inject(MapService);
+  #filtersService = inject(FiltersService)
   initialFormData: any
 
   // Transform the enum into an array of objects
-  resources = Object.keys(RessourceImageLinks);
+  // resources = Object.keys(RessourceImageLinks);
   rarities = Object.keys(Rarity);
 
   // Contrôle pour la recherche dans la liste des ressources
   resourceSearchControl = new FormControl('');
 
   // Liste filtrée des ressources (initialisée avec toutes les ressources)
-  filteredResources: string[] = [...this.resources];
+   // filteredResources: string[] = [...this.resources];
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
     selectedResources: new FormControl([]), // Default: no selection
     selectedRarities: new FormControl([])
   });
+
+  resourceOptions = this.#filtersService.getRessourceOptions();
+
+  filteredResources: ResourceType[] = [];
 
   ngOnInit() {
     this.initialFormData = this.filterForm.value;
@@ -57,9 +63,9 @@ export class MapFiltersComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe((searchTerm) => {
       const lowerCaseSearchTerm = (searchTerm || '').toLowerCase();
-      this.filteredResources = this.resources.filter((resource) =>
+      /*this.filteredResources = this.resources.filter((resource) =>
         resource.toLowerCase().includes(lowerCaseSearchTerm)
-      );
+      );*/
     });
   }
 
