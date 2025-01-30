@@ -25,6 +25,7 @@
     "leaflet": "^1.9.4",
     "mathjs": "^14.1.0",
     "moment": "^2.30.1",
+    "primeicons": "^7.0.0",
     "primeng": "^19.0.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

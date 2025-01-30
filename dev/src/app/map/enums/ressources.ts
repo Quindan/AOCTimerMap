@@ -10,8 +10,7 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       weeping_willow: '/assets/icons/ressources/weeping_willow.webp',
     },
     stone: {
-      basalt: '/assets/icons/ressources/basalt.webp',
-      gloomy_pross_petals: '/assets/icons/ressources/gloomy_pross_petals.webp',
+      basalt: '/assets/icons/ressources/basalt.webp',      
       gneiss: '/assets/icons/ressources/gneiss.webp',
       granite: '/assets/icons/ressources/granite.webp',
       wyrdstone: '/assets/icons/ressources/wyrdstone.webp',
@@ -24,12 +23,11 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       daffodil: '/assets/icons/ressources/daffodil.webp',
       flax: '/assets/icons/ressources/flax.webp',
       giant_bluebell: '/assets/icons/ressources/giant_bluebell.webp',
+      gloomy_pross_petals: '/assets/icons/ressources/gloomy_pross_petals.webp',
       grave_lily: '/assets/icons/ressources/grave_lily.webp',
       moonbell: '/assets/icons/ressources/moonbell.webp',
       spiritbloom: '/assets/icons/ressources/spiritbloom.webp',
       snowdrop: '/assets/icons/ressources/snowdrop.webp',
-      HerbalPlant: 'HerbalPlant',
-      Wheat: 'Wheat',
     },
     metal: {
       copper: '/assets/icons/ressources/copper.webp',
@@ -40,7 +38,7 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       stellarium: '/assets/icons/ressources/stellarium.webp',
       tin: '/assets/icons/ressources/tin.webp',
       zinc: '/assets/icons/ressources/zinc.webp',
-      Sapphire: 'Sapphire',      
+      Sapphire: '/assets/icons/ressources/sapphire.webp',      
     },
     gem: {
       diamond: '/assets/icons/ressources/diamond.webp',
