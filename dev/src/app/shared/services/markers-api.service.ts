@@ -3,7 +3,7 @@ import { Observable, of, throwError, timer } from 'rxjs';
 import { catchError, delay, map, tap } from 'rxjs/operators';
 import { CustomMarker } from '../interface/marker.interface';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export type Point = { lat: number; lng: number };
 
