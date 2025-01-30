@@ -12,6 +12,7 @@ export type Point = { lat: number; lng: number };
 })
 export class MarkersApiService {
   #baseUrl = environment.apiUrl;
+
   http = inject(HttpClient);
 
   // Liste des markers mockée
@@ -21,8 +22,8 @@ export class MarkersApiService {
       label: 'Marker 1',
       lat: -236,
       lng: 103,
-      startTime: 1738104985, 
-      alarmAfter: 1738105825, 
+      startTime: 1738104985,
+      alarmAfter: 1738105825,
       inGameCoord: 'A1',
       type: 'giant_bluebell',
       rarity: 'common',
@@ -54,7 +55,7 @@ export class MarkersApiService {
     },
   ];
 
-  constructor() {}  
+  constructor() {}
 
   /**
    * Récupère la liste des markers avec un délai simulé
@@ -93,7 +94,7 @@ export class MarkersApiService {
    * @param id The ID of the marker to update
    * @param updatedData The updated marker data
    */
-  updateMarker(id: number, updatedData: Partial<CustomMarker>): Observable<{ success: boolean }> {    
+  updateMarker(id: number, updatedData: Partial<CustomMarker>): Observable<{ success: boolean }> {
     const payload = { ...updatedData, id };
     return this.http.post<{ success: boolean }>(
       `${this.#baseUrl}?action=update`,
