@@ -10,7 +10,7 @@ export type Point = { lat: number; lng: number };
   providedIn: 'root',
 })
 export class MarkersApiService {
-  #baseUrl = 'http://91.134.75.138:82/api.php';
+  #baseUrl = 'http://91.134.75.138/api.php';
   http = inject(HttpClient);
 
   // Créer un marker	POST	your-backend-endpoint.php?action=create

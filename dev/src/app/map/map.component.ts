@@ -1,6 +1,5 @@
 import { Component, AfterViewInit, inject, effect, DestroyRef } from '@angular/core';
 import * as L from 'leaflet';
-import { RessourceImageLinks } from './enums/ressources.enum';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MarkerFormComponent } from '../marker-form/marker-form.component';
 
@@ -18,6 +17,7 @@ import { interval, switchMap, takeUntil, tap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SoundService } from '../shared/services/sound.service';
+import { RessourcesService } from '../shared/services/ressources.service';
 
 @Component({
   selector: 'app-map',
@@ -28,13 +28,16 @@ import { SoundService } from '../shared/services/sound.service';
 export class MapComponent implements AfterViewInit {
   dialogService = inject(DialogService);
   #mapService = inject(MapService);
-  #markerApiService = inject(MarkersApiService)
+  #markerApiService = inject(MarkersApiService);
+  #ressourcesService = inject(RessourcesService);
   #dialog = inject(MatDialog);
   #timersService = inject(TimersService);
   #route = inject(ActivatedRoute);
   #destroyRef = inject(DestroyRef);
   #soundService = inject(SoundService);
 
+  
+ 
   constructor() {
     const data = this.#route.snapshot.data['markerList'];
     this.#mapService.customMarkers = data || [];
@@ -280,7 +283,8 @@ export class MapComponent implements AfterViewInit {
   }
 
   private getIconType(type: string, rarity: string) {
-    const iconUrl = RessourceImageLinks[type as keyof typeof RessourceImageLinks] || '';
+    // const iconUrl = RessourceImageLinks[type as keyof typeof RessourceImageLinks] || '';
+    const iconUrl = this.#ressourcesService.getResourceIcon(type);
     rarity = rarity ? 'badge-'+rarity.toLowerCase() : '';
     return L.divIcon({
       className: `custom-marker custom-marker-progress`,
