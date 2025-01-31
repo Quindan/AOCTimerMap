@@ -9,7 +9,6 @@ import { MapService } from '../shared/services/map.service';
 })
 export class MapResolver implements Resolve<any> {
   #markersApiService = inject(MarkersApiService);
-  #mapService = inject(MapService)   
   resolve(): Observable<any> {
     // Simule une récupération de données (remplacez par votre logique réelle)    
     return this.#markersApiService.getMarkers();
