@@ -74,6 +74,8 @@ export class MapComponent implements AfterViewInit {
     // Ajoute la couche de tuiles à la carte
     tiles.addTo(this.#mapService.map);
 
+    this.moveZoomControlToRight();
+
     this.#mapService.map.whenReady(() => {
       this.#mapService.map.invalidateSize();
 
@@ -92,6 +94,20 @@ export class MapComponent implements AfterViewInit {
       tap(markers => this.refreshMarkersList(markers)), // Met à jour la liste des markers
       takeUntilDestroyed(this.#destroyRef) // Stoppe l'intervalle quand le composant est détruit
     )
+  }
+
+  moveZoomControlToRight(): void {
+    setTimeout(() => {
+      const zoomControl = document.querySelector('.leaflet-control-zoom');
+      if (zoomControl) {
+        // Trouver le conteneur parent qui a les classes leaflet-top leaflet-left
+        const parentDiv = zoomControl.parentElement;
+        if (parentDiv) {
+          parentDiv.classList.remove('leaflet-left');
+          parentDiv.classList.add('leaflet-right');
+        }
+      }
+    }, 100); // Attendre un peu pour que Leaflet charge les contrôles
   }
 
   mapClickEvent() {

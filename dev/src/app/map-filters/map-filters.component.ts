@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MapService } from '../shared/services/map.service';
@@ -12,7 +12,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonModule } from '@angular/common';
 import { FiltersService } from '../shared/services/filters.service';
-import { ResourceType } from '../map/enums/ressources';
+import { SidebarModule } from 'primeng/sidebar';
 
 @Component({
   selector: 'app-map-filters',
@@ -26,14 +26,22 @@ import { ResourceType } from '../map/enums/ressources';
     MatButtonModule,
     ButtonModule,
     MultiSelectModule,
-    TreeSelectModule
+    TreeSelectModule,
+    SidebarModule
   ],
   templateUrl: './map-filters.component.html',
   styleUrl: './map-filters.component.scss'
 })
 export class MapFiltersComponent implements OnInit {
   #mapService = inject(MapService);
-  #filtersService = inject(FiltersService)
+  #filtersService = inject(FiltersService);
+
+  filtersOpen = signal(true);
+
+  toggleFilters(): void {
+    this.filtersOpen.set(!this.filtersOpen());
+  }
+
   initialFormData: any
 
   // Transform the enum into an array of objects
@@ -51,6 +59,28 @@ export class MapFiltersComponent implements OnInit {
 
   ngOnInit() {
     this.initialFormData = this.filterForm.value;
+  }
+
+  ngAfterViewInit() {
+    this.observeSidebarMask();
+  }
+
+  observeSidebarMask(): void {
+    const observer = new MutationObserver(() => {
+      const maskElement = document.querySelector('.p-drawer-mask');
+      const sidebarElement = document.querySelector('.p-drawer');
+
+      if (maskElement && sidebarElement) {
+        maskElement.addEventListener('click', (event) => {
+          // Vérifier si le clic provient directement du mask et pas de la sidebar
+          if (!sidebarElement.contains(event.target as Node) && this.filtersOpen()) {
+            this.filtersOpen.set(false);
+          }
+        });
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   clearMarkers() {

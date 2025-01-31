@@ -1,55 +1,68 @@
-<div class="bg-blue-500 text-white p-4">
-    Map filters
+@let isOpen = filtersOpen();
+@if (!isOpen) {
+  <button 
+    mat-fab 
+    class="show-hide-filters bg-blue-500 hover:bg-blue-600 text-white shadow-md"
+    (click)="toggleFilters()"
+  >
+    <mat-icon>search</mat-icon>
+  </button>
+} @else {
+  <div class="filters-container">
+
+    <div class="bg-blue-500 text-white p-4 flex items-center justify-between">
+      <h1>Map filters</h1>
+      <button 
+        mat-fab 
+        class="bg-blue-500 hover:bg-blue-600 text-white shadow-md"
+        (click)="toggleFilters()"
+      >
+        <mat-icon>arrow_backward</mat-icon>
+      </button>
+    </div>
+
+  <form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
+    <mat-form-field class="w-full mt-5">
+      <mat-label>Filtrer la rareté</mat-label>
+      <mat-select
+        formControlName="selectedRarities"
+        multiple
+      >
+        @for (rarity of rarities; track rarity) {
+        <mat-option [value]="rarity">
+          {{ rarity }}
+        </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    
+    <div>
+      <p-treeselect
+        class="w-full md:w-80 "
+        containerStyleClass="w-full"
+        formControlName="selectedResources"
+        [options]="resourceOptions"
+        display="chip"
+        filter="true"
+        [metaKeySelection]="false"
+        selectionMode="checkbox"
+        showClear="true"
+        placeholder="Selectionne ta ressource"
+      />
+    </div>
+
+    <div class="flex items-center justify-end w-full mt-4">    
+      <button mat-raised-button (click)="clearAllFilters()" [disabled]="!filterForm.valid || !filterForm.controls.selectedResources.value" class="p-4 me-4">
+        <span class="text-gray-700">Réinitialiser les filtres</span>
+
+        <mat-icon class="text-red-500">delete</mat-icon>
+      </button>
+      <button mat-raised-button type="submit" [disabled]="!filterForm.valid || !hasFormChanged()" class="p-4 me-4">
+        <span class="text-gray-700">Filtrer la carte</span>
+        <mat-icon class="text-blue-500">filter_alt</mat-icon>
+      </button>
+    </div>
+  </form>
 </div>
+}
 
-<form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
-  <mat-form-field class="w-full mt-5">
-    <mat-label>Filtrer la rareté</mat-label>
-    <mat-select
-      formControlName="selectedRarities"
-      multiple
-    >
-      @for (rarity of rarities; track rarity) {
-      <mat-option [value]="rarity">
-        <!-- Affiche le nom de la ressource -->
-        {{ rarity }}
-      </mat-option>
-      }
-    </mat-select>
-  </mat-form-field>
-  
-  <div>
-    <p-treeselect
-      class="w-full md:w-80 "
-      containerStyleClass="w-full"
-      formControlName="selectedResources"
-      [options]="resourceOptions"
-      display="chip"
-      filter="true"
-      [metaKeySelection]="false"
-      selectionMode="checkbox"
-      showClear="true"
-      placeholder="Selectionne ta ressource"
-    />
-  </div>
-
-  
-<!-- end test prime ng -->
-
-  <div class="flex items-center justify-end w-full mt-4">    
-    <button mat-raised-button (click)="clearAllFilters()" [disabled]="!filterForm.valid || !filterForm.controls.selectedResources.value" class="p-4 me-4">
-      <!-- Texte aligné à gauche -->
-      <span class="text-gray-700">Réinitialiser les filtres</span>
-
-      <!-- Icône de corbeille alignée à droite -->
-      <mat-icon class="text-red-500">delete</mat-icon>
-    </button>
-    <button mat-raised-button type="submit" [disabled]="!filterForm.valid || !hasFormChanged()" class="p-4 me-4">
-      <!-- Texte aligné à gauche -->
-      <span class="text-gray-700">Filtrer la carte</span>
-
-      <!-- Icône de corbeille alignée à droite -->
-      <mat-icon class="text-blue-500">filter_alt</mat-icon>
-    </button>
-  </div>
-</form>
