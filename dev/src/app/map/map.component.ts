@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, inject, effect, DestroyRef } from '@angular/core';
+import { Component, AfterViewInit, inject, effect, DestroyRef, signal } from '@angular/core';
 import * as L from 'leaflet';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MarkerFormComponent } from '../marker-form/marker-form.component';
@@ -18,12 +18,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SoundService } from '../shared/services/sound.service';
 import { RessourcesService } from '../shared/services/ressources.service';
+import { HelpComponent } from '../help/help.component';
 
 @Component({
   selector: 'app-map',
-  //template: `<div id="map" style="height: 100vh;"></div>`,
   templateUrl: './map.component.html',
-  imports: [MapFiltersComponent, MatIconModule, MatButtonModule]
+  imports: [MapFiltersComponent, HelpComponent, MatIconModule, MatButtonModule]
 })
 export class MapComponent implements AfterViewInit {
   dialogService = inject(DialogService);
@@ -35,8 +35,7 @@ export class MapComponent implements AfterViewInit {
   #route = inject(ActivatedRoute);
   #destroyRef = inject(DestroyRef);
   #soundService = inject(SoundService);
-
-  
+ 
  
   constructor() {
     const data = this.#route.snapshot.data['markerList'];
