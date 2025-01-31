@@ -79,11 +79,14 @@ export class MapComponent implements AfterViewInit {
     this.#mapService.map.whenReady(() => {
       this.#mapService.map.invalidateSize();
 
-      // TODO : Refresh map every 10 seconds and only update new marker
-      this.initAllMarkers();
+      this.initAllMarkers();   
+
+      // Refresh map with markers styles updated
+      this.refreshMap();   
       this.updateMarkersGatherAlert();
-      interval(10000).pipe(
+      interval(5000).pipe(
         switchMap(() => this.refreshMap()),
+        tap(() => this.updateMarkersGatherAlert()),
         takeUntilDestroyed(this.#destroyRef)
       ).subscribe();
     });
@@ -147,19 +150,17 @@ export class MapComponent implements AfterViewInit {
     })
   }
 
-  private updateMarkersGatherAlert() {   
-    setInterval(() => {
-      this.#mapService.markers.forEach((marker) => {
-        const showGatherAlert = this.#timersService.showGatherAlert(marker);
-        this.#timersService.updateProgress(marker);
-        if (showGatherAlert) { 
-          this.addBadge(marker);
-          this.#soundService.playSound('alert');
-        } else {
-          this.removeBadge(marker);
-        }
-      })      
-    }, 5000);
+  private updateMarkersGatherAlert() {
+    this.#mapService.markers.forEach((marker) => {
+      const showGatherAlert = this.#timersService.showGatherAlert(marker);
+      this.#timersService.updateProgress(marker);
+      if (showGatherAlert) { 
+        this.addBadge(marker);
+        this.#soundService.playSound('alert');
+      } else {
+        this.removeBadge(marker);
+      }
+    })   
   }
 
   /**
@@ -270,30 +271,48 @@ export class MapComponent implements AfterViewInit {
   }
 
   private markerBindPopup(marker: L.Marker, customMarkerInfo: CustomMarker) {
+    const now = moment().unix();
     const creationDate = moment.unix(customMarkerInfo.startTime).format('DD/MM/YYYY HH:mm:ss');
     const repopTime = moment.unix(customMarkerInfo.alarmAfter).format('DD/MM/YYYY HH:mm:ss');
     const rarity = customMarkerInfo?.rarity ? customMarkerInfo.rarity.toLowerCase() : '';
     const label = customMarkerInfo.label ? `<b>Label : ${customMarkerInfo.label}</b><br>` : '';
+    const markerId = L.stamp(marker);
     marker.bindPopup(`
-      Lat: ${customMarkerInfo.lat.toFixed(5)}, Lng: ${customMarkerInfo.lng.toFixed(5)}<br>
-      ${label}
+      <!--Lat: ${customMarkerInfo.lat.toFixed(5)}, Lng: ${customMarkerInfo.lng.toFixed(5)}<br>
+      ${label}-->
       <!--<b>Coordonnées en jeu : ${customMarkerInfo.inGameCoord}</b><br>-->
       <b>Création : ${creationDate}</b><br>
       <b class="capitalize">Type : ${customMarkerInfo.type.replace('_', ' ')} </b><br>
       <b>Rarity : ${rarity} </b><br>
-      <b>Repop cible : ${repopTime} </b>`, {
+      <b>Repop cible : ${repopTime} </b><br>
+      <b>Temps restant: <span id="timer-${markerId}">Calcul...</span></b><br>`, {
         className: `bg-${rarity}`,
-      });
+      });      
   }
 
+  // Gestion des mouse in mouse out
   private markerPopupEvent(marker: L.Marker) {
-    // Ouvrir le popup au survol
-    marker.on('mouseover', function () {
+    let timerInterval: any = null;
+  
+    // Utilisation d'une fonction fléchée pour conserver `this`
+    marker.on('mouseover', () => {
       marker.openPopup();
+  
+      // Mettre à jour immédiatement la popup
+      this.#timersService.updateRemainingTimeInMarkerPopup(marker);
+  
+      // Rafraîchir toutes les secondes
+      timerInterval = setInterval(() => {
+        this.#timersService.updateRemainingTimeInMarkerPopup(marker);
+      }, 1000);
     });
-
-    // Fermer le popup quand la souris quitte le marqueur
-    marker.on('mouseout', function () {
+  
+    // Arrêter l'intervalle au `mouseout`
+    marker.on('mouseout', () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
       marker.closePopup();
     });
   }

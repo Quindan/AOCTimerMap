@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import moment from 'moment';
 import { CustomMarker } from '../interface/marker.interface';
+import L from 'leaflet';
 
 declare module 'leaflet' {
   interface Marker {
@@ -53,6 +54,19 @@ export class TimersService {
       return true;
     }
     return false;
+  }
+
+  // Calculate remaining time
+  updateRemainingTimeInMarkerPopup(marker: L.Marker) {
+    const markerId = L.stamp(marker);
+    const timerElement = document.getElementById(`timer-${markerId}`);
+    if (timerElement) {
+      const now = moment().unix();
+      const remainingTimeStamp = marker.customData ? marker.customData.alarmAfter - now : 0;
+      const remainingTime = moment.duration(remainingTimeStamp, "seconds");
+      const formattedTimeLeft = remainingTimeStamp <= 0 ? `` : `${remainingTime.hours()}h${remainingTime.minutes()}m${remainingTime.seconds()}s`;
+      timerElement.innerText = remainingTimeStamp > 0 ? formattedTimeLeft : "Expiré";
+    }
   }
 
   updateProgress(marker: L.Marker) {

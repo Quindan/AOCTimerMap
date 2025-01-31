@@ -67,11 +67,13 @@ export class MarkerFormComponent implements OnInit, OnDestroy {
     const customMarkerInfo = this.data?.customData;
     if (this.data) {
       const rarity = customMarkerInfo?.rarity ? customMarkerInfo.rarity.charAt(0) + customMarkerInfo.rarity.slice(1) : '';
+      const alarmAfter = (customMarkerInfo.alarmAfter - customMarkerInfo.startTime) / 3600;
       this.markerForm.patchValue({
         label: customMarkerInfo.label,
         coord: customMarkerInfo.inGameCoord,
         type: customMarkerInfo.type,
         rarity: rarity,
+        timer: alarmAfter,
         updateTimer: false
       });
     } else {

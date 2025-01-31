@@ -51,8 +51,8 @@
       </mat-form-field>
 
       @if (data) {
-        <div class="flex items-center space-x-4">
-          <mat-slide-toggle formControlName="updateTimer">Modifier le timer</mat-slide-toggle>
+        <div class="border border-blue-500 rounded-lg p-4 bg-blue-50 flex items-center space-x-4 mb-2">
+          <mat-slide-toggle formControlName="updateTimer">Click to reset timer</mat-slide-toggle>
         </div>
       }    
 
@@ -92,7 +92,11 @@
       (click)="submitForm()"
       [disabled]="!markerForm.valid || !hasFormChanged()"
     >
-      Ajouter
+      @if (data) {
+        Update
+      } @else {
+        Ajouter
+      }
     </button>
   </mat-dialog-actions>
   
