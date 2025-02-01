@@ -60,7 +60,7 @@
         
         @for (respawnTime of respawns; track respawnTime) {
           @if (respawnTime === 0) {
-            <mat-option value="respawnTime">Aucun</mat-option>
+            <mat-option [value]="respawnTime">Aucun</mat-option>
           } @else {
             <mat-option [value]="respawnTime">
               Moins de {{ respawnTime }} minutes
