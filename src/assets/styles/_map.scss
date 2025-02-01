@@ -103,6 +103,11 @@
   }    
 }
 
+// Zoom In / Zoom out need to be under sidepanel level
+.leaflet-top.leaflet-right {
+  z-index: 999;
+}
+
 .marker-container {
   .marker-image {
     z-index: 1000;
