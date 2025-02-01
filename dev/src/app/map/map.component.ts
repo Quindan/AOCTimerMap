@@ -270,15 +270,14 @@ export class MapComponent implements AfterViewInit {
   }
 
   private markerBindPopup(marker: L.Marker, customMarkerInfo: CustomMarker) {
-    const now = moment().unix();
     const creationDate = moment.unix(customMarkerInfo.startTime).format('DD/MM/YYYY HH:mm:ss');
     const repopTime = moment.unix(customMarkerInfo.alarmAfter).format('DD/MM/YYYY HH:mm:ss');
     const rarity = customMarkerInfo?.rarity ? customMarkerInfo.rarity.toLowerCase() : '';
     const label = customMarkerInfo.label ? `<b>Label : ${customMarkerInfo.label}</b><br>` : '';
     const markerId = L.stamp(marker);
     marker.bindPopup(`
-      <!--Lat: ${customMarkerInfo.lat.toFixed(5)}, Lng: ${customMarkerInfo.lng.toFixed(5)}<br>
-      ${label}-->
+      <!--Lat: ${customMarkerInfo.lat.toFixed(5)}, Lng: ${customMarkerInfo.lng.toFixed(5)}<br>-->
+      ${label}
       <!--<b>Coordonnées en jeu : ${customMarkerInfo.inGameCoord}</b><br>-->
       <b>Création : ${creationDate}</b><br>
       <b class="capitalize">Type : ${customMarkerInfo.type.replace('_', ' ')} </b><br>
