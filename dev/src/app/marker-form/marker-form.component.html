@@ -29,13 +29,13 @@
       <ng-template #selectedItem let-selectedOption>
           <div class="flex items-center gap-2">
               <img [src]="'assets/icons/ressources/'+selectedOption+'.webp'" style="width: 18px" />
-              <div class="text-blac">{{ selectedOption }}</div>
+              <div class="text-blac">{{ selectedOption.replaceAll('_', ' ') }}</div>
           </div>
       </ng-template>
       <ng-template let-type #item>
           <div class="flex items-center gap-2">
               <img [src]="'assets/icons/ressources/'+type+'.webp'" style="width: 18px" />
-              <div>{{ type }}</div>
+              <div>{{ type.replaceAll('_', ' ') }}</div>
           </div>
       </ng-template>
     </p-select>

@@ -79,7 +79,7 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       protectors_pride: '/assets/icons/ressources/protectors_pride.webp',
       raptor: '/assets/icons/ressources/raptor.webp',
       riverdancer_otter: '/assets/icons/ressources/riverdancer_otter.webp',
-      riverland_kirin: '/assets/icons/ressources/riverland_kirin.webp',
+      riverlands_kirin: '/assets/icons/ressources/riverlands_kirin.webp',
       runic_steed: '/assets/icons/ressources/runic_steed.webp',
       sandsquall_croc: '/assets/icons/ressources/sandsquall_croc.webp',
       shatterclaw: '/assets/icons/ressources/shatterclaw.webp',
