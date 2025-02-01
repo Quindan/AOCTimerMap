@@ -102,7 +102,7 @@ export class MapFiltersComponent implements OnInit {
       const respawnIn = customData.alarmAfter - now;
       const isRespawnInRange = respawnIn > 0 && respawnIn < (selectedRespawnIn * 60);
       const matchesRespawnIn =   
-        selectedRespawnIn !== 0 && isRespawnInRange; // Converted in seconds
+        selectedRespawnIn === 0 || isRespawnInRange; 
 
       return customData && matchesResource && matchesRarity && matchesRespawnIn;
     });
