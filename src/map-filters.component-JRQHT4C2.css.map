@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/map-filters/map-filters.component.scss"],
-  "sourcesContent": [".show-hide-filters {\r\n    position: absolute;\r\n    top: 10px;\r\n    left: 10px;\r\n    z-index: 500;\r\n}\r\n\r\n.filters-container {    \r\n    width: 400px;\r\n    position: absolute;\r\n    z-index: 1000;    \r\n    top:0;\r\n    bottom:0;\r\n    left:0;\r\n    background-color: aliceblue;\r\n}"],
-  "mappings": ";AAAA,CAAA;AACI,YAAA;AACA,OAAA;AACA,QAAA;AACA,WAAA;;AAGJ,CAAA;AACI,SAAA;AACA,YAAA;AACA,WAAA;AACA,OAAA;AACA,UAAA;AACA,QAAA;AACA,oBAAA;;",
-  "names": []
-}
