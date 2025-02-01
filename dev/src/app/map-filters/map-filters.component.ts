@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MapService } from '../shared/services/map.service';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Rarity } from '../map/enums/rarity.enum';
@@ -13,6 +13,7 @@ import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonModule } from '@angular/common';
 import { FiltersService } from '../shared/services/filters.service';
 import { SidebarModule } from 'primeng/sidebar';
+import moment from 'moment';
 
 @Component({
   selector: 'app-map-filters',
@@ -48,39 +49,19 @@ export class MapFiltersComponent implements OnInit {
   // resources = Object.keys(RessourceImageLinks);
   rarities = Object.keys(Rarity);
   resourceOptions = this.#filtersService.getTreeResourceOptions();
+  respawns = [0, 15, 30];
 
   // Liste filtrée des ressources (initialisée avec toutes les ressources)
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
     selectedResources: new FormControl([]), // Default: no selection
-    selectedRarities: new FormControl([])
+    selectedRarities: new FormControl([]),
+    selectedRespawnIn: new FormControl(0)
   });
 
   ngOnInit() {
     this.initialFormData = this.filterForm.value;
-  }
-
-  ngAfterViewInit() {
-    this.observeSidebarMask();
-  }
-
-  observeSidebarMask(): void {
-    const observer = new MutationObserver(() => {
-      const maskElement = document.querySelector('.p-drawer-mask');
-      const sidebarElement = document.querySelector('.p-drawer');
-
-      if (maskElement && sidebarElement) {
-        maskElement.addEventListener('click', (event) => {
-          // Vérifier si le clic provient directement du mask et pas de la sidebar
-          if (!sidebarElement.contains(event.target as Node) && this.filtersOpen()) {
-            this.filtersOpen.set(false);
-          }
-        });
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   clearMarkers() {
@@ -97,9 +78,15 @@ export class MapFiltersComponent implements OnInit {
     return this.filterForm.get('selectedRarities')?.value || [];
   }
 
+  getSelectedRespawnIn(): number {
+    return this.filterForm.get('selectedRespawnIn')?.value || 0;
+  }
+
   onSubmit(): void {
+    const now = moment().unix();
     const selectedResources = this.getSelectedResources();
-    const selectedRarities = this.getSelectedRarities();
+    const selectedRarities  = this.getSelectedRarities();
+    const selectedRespawnIn = this.getSelectedRespawnIn();
     this.initialFormData = this.filterForm.value;
   
     // Filtrer les markers en fonction des ressources et des raretés sélectionnées
@@ -111,8 +98,13 @@ export class MapFiltersComponent implements OnInit {
         selectedResources.length === 0 || selectedResources.includes(customData.type);
       const matchesRarity =
         selectedRarities.length === 0 || selectedRarities.includes(customData.rarity);
-  
-      return customData && matchesResource && matchesRarity;
+
+      const respawnIn = customData.alarmAfter - now;
+      const isRespawnInRange = respawnIn > 0 && respawnIn < (selectedRespawnIn * 60);
+      const matchesRespawnIn =   
+        selectedRespawnIn !== 0 && isRespawnInRange; // Converted in seconds
+
+      return customData && matchesResource && matchesRarity && matchesRespawnIn;
     });
   
     // Ajouter les markers filtrés à la carte
