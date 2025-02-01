@@ -38,7 +38,7 @@
     
     <div>
       <p-treeselect
-        class="w-full md:w-80 "
+        class="w-full md:w-80"
         containerStyleClass="w-full"
         formControlName="selectedResources"
         [options]="resourceOptions"
@@ -50,6 +50,26 @@
         placeholder="Selectionne ta ressource"
       />
     </div>
+
+    
+    <mat-form-field class="w-full">
+      <mat-label>Filtrer par timer</mat-label>
+      <mat-select
+        formControlName="selectedRespawnIn"
+      >
+        
+        @for (respawnTime of respawns; track respawnTime) {
+          @if (respawnTime === 0) {
+            <mat-option value="respawnTime">Aucun</mat-option>
+          } @else {
+            <mat-option [value]="respawnTime">
+              Moins de {{ respawnTime }} minutes
+            </mat-option>
+          }        
+        }
+      </mat-select>
+    </mat-form-field>
+  
 
     <div class="flex items-center justify-end w-full mt-4">    
       <button mat-raised-button (click)="clearAllFilters()" [disabled]="!filterForm.valid || !filterForm.controls.selectedResources.value" class="p-4 me-4">
