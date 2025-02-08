@@ -9,10 +9,11 @@ import { MapService } from '../shared/services/map.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { catchError, finalize, Subscription, tap } from 'rxjs';
+import { finalize, Subscription, tap } from 'rxjs';
 import { SelectModule } from 'primeng/select';
 import { MarkersApiService } from '../shared/services/markers-api.service';
 import { RessourcesService } from '../shared/services/ressources.service';
+import { RESOURCE_CATEGORIES, TIMERS_BY_CATEGORIES } from '../map/enums/ressources';
 
 export interface MarkerForm {
   type: string, 
@@ -40,11 +41,11 @@ export class MarkerFormComponent implements OnInit, OnDestroy {
   #mapService = inject(MapService);
   #markerApiService = inject(MarkersApiService);
   #resourcesService = inject(RessourcesService);
-  // ressourceImages = Object.keys(RessourceImageLinks); // Ressources
   ressourceImages = this.#resourcesService.getAllResources(); 
   rarities = Object.keys(Rarity); // Raretés
 
   updateTimerSubscribe: Subscription | null | undefined = null; 
+  updateRessourceSubscribe: Subscription | null | undefined = null; 
 
   // FormGroup pour regrouper les 3 FormControl
   markerForm = new FormGroup({
@@ -89,6 +90,15 @@ export class MarkerFormComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Auto update timer depending on selected resource 
+    this.updateRessourceSubscribe = this.markerForm.get('type')?.valueChanges.subscribe((resourceName) => {
+      if (resourceName) {
+        const category = this.#resourcesService.getResourceCategory(resourceName)
+        const categoryTimer = TIMERS_BY_CATEGORIES[category || 1]; 
+        this.markerForm.get('timer')?.setValue(categoryTimer);
+      }
+    });
+
     this.initialFormData = this.markerForm.value;
   }
 
@@ -124,5 +134,6 @@ export class MarkerFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.updateTimerSubscribe?.unsubscribe();
+    this.updateRessourceSubscribe?.unsubscribe();
   }
 }
