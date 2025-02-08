@@ -63,7 +63,7 @@
             <mat-option [value]="respawnTime">Aucun</mat-option>
           } @else {
             <mat-option [value]="respawnTime">
-              Moins de {{ respawnTime }} minutes
+              {{ convertToReadableTime(respawnTime) }}
             </mat-option>
           }        
         }

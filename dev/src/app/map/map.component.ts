@@ -85,7 +85,11 @@ export class MapComponent implements AfterViewInit {
       this.updateMarkersGatherAlert();
       interval(5000).pipe(
         switchMap(() => this.refreshMap()),
-        tap(() => this.updateMarkersGatherAlert()),
+        tap(() => {
+          this.updateMarkersGatherAlert();
+          // Update map if filters are selected
+          this.#mapService.showFilteredMap();
+        }),
         takeUntilDestroyed(this.#destroyRef)
       ).subscribe();
     });

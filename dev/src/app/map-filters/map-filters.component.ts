@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MapService } from '../shared/services/map.service';
@@ -6,14 +6,15 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Rarity } from '../map/enums/rarity.enum';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TreeSelectModule } from 'primeng/treeselect';
 import { CommonModule } from '@angular/common';
 import { FiltersService } from '../shared/services/filters.service';
 import { SidebarModule } from 'primeng/sidebar';
-import moment from 'moment';
+import { getUnixTime, intervalToDuration } from 'date-fns';
+import { interval, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-map-filters',
@@ -36,6 +37,7 @@ import moment from 'moment';
 export class MapFiltersComponent implements OnInit {
   #mapService = inject(MapService);
   #filtersService = inject(FiltersService);
+  #destroyRef = inject(DestroyRef);
 
   filtersOpen = signal(true);
 
@@ -46,12 +48,9 @@ export class MapFiltersComponent implements OnInit {
   initialFormData: any
 
   // Transform the enum into an array of objects
-  // resources = Object.keys(RessourceImageLinks);
   rarities = Object.keys(Rarity);
   resourceOptions = this.#filtersService.getTreeResourceOptions();
-  respawns = [0, 15, 30];
-
-  // Liste filtrée des ressources (initialisée avec toutes les ressources)
+  respawns = [0, 15, 30, 60, 120, 180, 240];
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
@@ -83,37 +82,12 @@ export class MapFiltersComponent implements OnInit {
   }
 
   onSubmit(): void {
-    const now = moment().unix();
-    const selectedResources = this.getSelectedResources();
-    const selectedRarities  = this.getSelectedRarities();
-    const selectedRespawnIn = this.getSelectedRespawnIn();
+    this.#mapService.selectedResources = this.getSelectedResources();
+    this.#mapService.selectedRarities  = this.getSelectedRarities();
+    this.#mapService.selectedRespawnIn = this.getSelectedRespawnIn();
     this.initialFormData = this.filterForm.value;
   
-    // Filtrer les markers en fonction des ressources et des raretés sélectionnées
-    const filteredMarkers = this.#mapService.markers.filter((marker) => {
-      const customData = (marker as any).customData;
-  
-      // Si aucune ressource ou rareté n'est sélectionnée, ignorer ce filtre
-      const matchesResource =
-        selectedResources.length === 0 || selectedResources.includes(customData.type);
-      const matchesRarity =
-        selectedRarities.length === 0 || selectedRarities.includes(customData.rarity);
-
-      const respawnIn = customData.alarmAfter - now;
-      const isRespawnInRange = respawnIn > 0 && respawnIn < (selectedRespawnIn * 60);
-      const matchesRespawnIn =   
-        selectedRespawnIn === 0 || isRespawnInRange; 
-
-      return customData && matchesResource && matchesRarity && matchesRespawnIn;
-    });
-  
-    // Ajouter les markers filtrés à la carte
-    filteredMarkers.forEach((marker) => marker.addTo(this.#mapService.map));
-  
-    // Retirer les markers non filtrés de la carte
-    this.#mapService.markers
-      .filter((marker) => !filteredMarkers.includes(marker))
-      .forEach((marker) => this.#mapService.map.removeLayer(marker));
+    this.#mapService.showFilteredMap();
   }
 
   clearAllResources(): void {
@@ -127,6 +101,13 @@ export class MapFiltersComponent implements OnInit {
   hasFormChanged(): boolean {
     //return JSON.stringify(this.filterForm.value) !== JSON.stringify(this.initialFormData);
     return true;
+  }
+
+  convertToReadableTime(minutes: number): string {
+    const duration = intervalToDuration({ start: 0, end: minutes * 60 * 1000 });
+  
+    if (duration.hours) return `Moins de ${duration.hours} ${duration.hours > 1 ? 'heures' : 'heure'}`;
+    return `Moins de ${minutes} minutes`;
   }
 
 }

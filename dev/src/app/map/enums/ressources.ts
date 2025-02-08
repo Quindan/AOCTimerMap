@@ -1,5 +1,16 @@
 
 type ResourceCategory = Record<string, string>;
+
+export const TIMERS_BY_CATEGORIES: Record<string, number> = {
+  wood: 4,
+  plant: 4,
+  gem: 2,
+  stone: 1,
+  metal: 2,
+  hunting: 1
+} as const;
+
+
 export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
     wood: {
       acacia: '/assets/icons/ressources/acacia.webp', 

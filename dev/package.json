@@ -22,6 +22,7 @@
     "@angular/router": "^19.1.0",
     "@primeng/themes": "^19.0.5",
     "@types/leaflet": "^1.9.16",
+    "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
     "mathjs": "^14.1.0",
     "moment": "^2.30.1",
