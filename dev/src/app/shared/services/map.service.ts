@@ -59,14 +59,13 @@ export class MapService {
       return customData && matchesResource && matchesRarity && matchesRespawnIn;
     });
 
-    if (filteredMarkers.length > 0) {
-      // Ajouter les markers filtrés à la carte
-      filteredMarkers.forEach((marker) => marker.addTo(this.map));
-            
-      // Retirer les markers non filtrés de la carte
-      this.markers
-        .filter((marker) => !filteredMarkers.includes(marker))
-        .forEach((marker) => this.map.removeLayer(marker));
-    }
+    // Ajouter les markers filtrés à la carte
+    filteredMarkers.forEach((marker) => marker.addTo(this.map));
+          
+    // Retirer les markers non filtrés de la carte
+    this.markers
+      .filter((marker) => !filteredMarkers.includes(marker))
+      .forEach((marker) => this.map.removeLayer(marker));
+    
   }
 }
