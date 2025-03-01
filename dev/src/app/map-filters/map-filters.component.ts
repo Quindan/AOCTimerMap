@@ -50,7 +50,7 @@ export class MapFiltersComponent implements OnInit {
   // Transform the enum into an array of objects
   rarities = Object.keys(Rarity);
   resourceOptions = this.#filtersService.getTreeResourceOptions();
-  respawns = [0, 15, 30, 60, 120, 180, 240];
+  respawns = [0, 15, 30, 60, 120, 180, 240, 480];
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
@@ -61,6 +61,7 @@ export class MapFiltersComponent implements OnInit {
 
   ngOnInit() {
     this.initialFormData = this.filterForm.value;
+    this.onFormChanges().subscribe();
   }
 
   clearMarkers() {
@@ -81,14 +82,14 @@ export class MapFiltersComponent implements OnInit {
     return this.filterForm.get('selectedRespawnIn')?.value || 0;
   }
 
-  onSubmit(): void {
+  /*onSubmit(): void {
     this.#mapService.selectedResources = this.getSelectedResources();
     this.#mapService.selectedRarities  = this.getSelectedRarities();
     this.#mapService.selectedRespawnIn = this.getSelectedRespawnIn();
     this.initialFormData = this.filterForm.value;
   
     this.#mapService.showFilteredMap();
-  }
+  }*/
 
   clearAllResources(): void {
     this.filterForm.get('selectedResources')?.setValue([]);
@@ -110,4 +111,17 @@ export class MapFiltersComponent implements OnInit {
     return `Moins de ${minutes} minutes`;
   }
 
+  onFormChanges() {
+    return this.filterForm.valueChanges.pipe(
+      tap(() => {
+        this.#mapService.selectedResources = this.getSelectedResources();
+        this.#mapService.selectedRarities  = this.getSelectedRarities();
+        this.#mapService.selectedRespawnIn = this.getSelectedRespawnIn();
+        this.initialFormData = this.filterForm.value;
+      
+        this.#mapService.showFilteredMap();
+      }),
+      takeUntilDestroyed(this.#destroyRef)
+    )
+  }
 }
