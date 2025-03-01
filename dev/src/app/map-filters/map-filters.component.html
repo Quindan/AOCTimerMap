@@ -11,7 +11,7 @@
   <div class="filters-container">
 
     <div class="bg-blue-500 text-white p-4 flex items-center justify-between">
-      <h1>Map filters v0.6</h1>
+      <h1>Map filters v0.6.1</h1>
       <button 
         mat-fab 
         class="bg-blue-500 hover:bg-blue-600 text-white shadow-md"
@@ -21,7 +21,7 @@
       </button>
     </div>
 
-  <form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="filterForm">
     <mat-form-field class="w-full mt-5">
       <mat-label>Filtrer la rareté</mat-label>
       <mat-select
@@ -77,10 +77,10 @@
 
         <mat-icon class="text-red-500">delete</mat-icon>
       </button>
-      <button mat-raised-button type="submit" [disabled]="!filterForm.valid || !hasFormChanged()" class="p-4 me-4">
+      <!--<button mat-raised-button type="submit" [disabled]="!filterForm.valid || !hasFormChanged()" class="p-4 me-4">
         <span class="text-gray-700">Filtrer la carte</span>
         <mat-icon class="text-blue-500">filter_alt</mat-icon>
-      </button>
+      </button>-->
     </div>
   </form>
 </div>
