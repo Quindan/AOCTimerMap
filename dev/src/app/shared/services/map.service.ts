@@ -43,7 +43,7 @@ export class MapService {
   showFilteredMap() {
     const now = getUnixTime(new Date());
     const filteredMarkers = this.markers.filter((marker) => {
-      const customData = (marker as any).customData;
+      const customData: CustomMarker = (marker as any).customData;
   
       // Si aucune ressource ou rareté n'est sélectionnée, ignorer ce filtre
       const matchesResource =
@@ -52,7 +52,8 @@ export class MapService {
         this.selectedRarities.length === 0 || this.selectedRarities.includes(customData.rarity);
 
       const respawnIn = customData.alarmAfter - now;
-      const isRespawnInRange = respawnIn > 0 && respawnIn < (this.selectedRespawnIn * 60);
+      // -3600 stand to display ressources that spawned 1h ago
+      const isRespawnInRange = respawnIn > -3600 && respawnIn < (this.selectedRespawnIn * 60);
       const matchesRespawnIn =   
         this.selectedRespawnIn === 0 || isRespawnInRange; 
 

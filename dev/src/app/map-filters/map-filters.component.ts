@@ -50,7 +50,7 @@ export class MapFiltersComponent implements OnInit {
   // Transform the enum into an array of objects
   rarities = Object.keys(Rarity);
   resourceOptions = this.#filtersService.getTreeResourceOptions();
-  respawns = [0, 15, 30, 60, 120, 180, 240, 480];
+  respawns = [0, 15, 30, 60, 120, 180, 240];
 
   // Form group with a multi-select control
   filterForm = new FormGroup({
