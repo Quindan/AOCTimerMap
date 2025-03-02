@@ -45,8 +45,9 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       paintbrush: '/assets/icons/ressources/paintbrush.webp',
       poppy: '/assets/icons/ressources/poppy.webp',
       saguaro_cactus: '/assets/icons/ressources/saguaro_cactus.webp',
-      spiritbloom: '/assets/icons/ressources/spiritbloom.webp',
       snowdrop: '/assets/icons/ressources/snowdrop.webp',
+      spiritbloom: '/assets/icons/ressources/spiritbloom.webp',
+      spindlevine: '/assets/icons/ressources/spindlevine.webp'
     },
     metal: {
       copper: '/assets/icons/ressources/copper.webp',
@@ -73,6 +74,7 @@ export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
       armored_raptor: '/assets/icons/ressources/armored_raptor.webp',
       bear: '/assets/icons/ressources/bear.webp',
       bork: '/assets/icons/ressources/bork.webp',
+      bonestrider: '/assets/icons/ressources/bonestrider.webp',
       daystrider: '/assets/icons/ressources/daystrider.webp',
       dawnbreaker: '/assets/icons/ressources/dawnbreaker.webp',
       deer: '/assets/icons/ressources/deer.webp',      
