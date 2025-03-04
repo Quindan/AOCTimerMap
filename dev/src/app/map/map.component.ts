@@ -61,7 +61,7 @@ export class MapComponent implements AfterViewInit {
     });
 
     // Ajouter les tuiles
-    const tiles = L.tileLayer('https://cdn.ashescodex.com/map/20241219/{z}/{x}/{y}.webp', {
+    const tiles = L.tileLayer('https://cdn.ashescodex.com/map/20250227/{z}/{x}/{y}.webp', {
       tileSize: tileSize,
       minZoom: minZoom,
       maxZoom: maxZoom,
