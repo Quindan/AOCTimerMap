@@ -13,9 +13,11 @@ import { MarkersApiService } from '../shared/services/markers-api.service';
 import { MapFiltersComponent } from '../map-filters/map-filters.component';
 import { ActivatedRoute } from '@angular/router';
 import { CustomMarker, MarkerForm } from '../shared/interface/marker.interface';
-import { interval, switchMap, takeUntil, tap } from 'rxjs';
+import { interval, switchMap, takeUntil, tap, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SoundService } from '../shared/services/sound.service';
 import { RessourcesService } from '../shared/services/ressources.service';
 import { HelpComponent } from '../help/help.component';
@@ -23,7 +25,7 @@ import { HelpComponent } from '../help/help.component';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
-  imports: [MapFiltersComponent, HelpComponent, MatIconModule, MatButtonModule]
+  imports: [MapFiltersComponent, HelpComponent, MatIconModule, MatButtonModule, MatSnackBarModule]
 })
 export class MapComponent implements AfterViewInit {
   dialogService = inject(DialogService);
@@ -35,6 +37,9 @@ export class MapComponent implements AfterViewInit {
   #route = inject(ActivatedRoute);
   #destroyRef = inject(DestroyRef);
   #soundService = inject(SoundService);
+  #snackBar = inject(MatSnackBar);
+
+  private offlineNotified = false;
  
  
   constructor() {
@@ -61,7 +66,7 @@ export class MapComponent implements AfterViewInit {
     });
 
     // Ajouter les tuiles
-    const tiles = L.tileLayer('https://cdn.ashescodex.com/map/20250227/{z}/{x}/{y}.webp', {
+    const tiles = L.tileLayer('https://cdn.ashescodex.com/map/20250826/{z}/{x}/{y}.webp', {
       tileSize: tileSize,
       minZoom: minZoom,
       maxZoom: maxZoom,
@@ -97,7 +102,21 @@ export class MapComponent implements AfterViewInit {
 
   refreshMap() {
     return this.#markerApiService.getMarkers().pipe(
-      tap(markers => this.refreshMarkersList(markers)), // Met à jour la liste des markers
+      tap(markers => {
+        this.refreshMarkersList(markers);
+        if (this.offlineNotified) {
+          this.offlineNotified = false;
+        }
+      }), // Met à jour la liste des markers
+      // En cas d'erreur, éviter d'interrompre l'intervalle et renvoyer un tableau vide
+      catchError((err) => {
+        console.warn('Refresh markers échoué, fallback []', err);
+        if (!this.offlineNotified) {
+          this.#snackBar.open('API indisponible. Mode hors-ligne actif.', 'OK', { duration: 5000 });
+          this.offlineNotified = true;
+        }
+        return of([]);
+      }),
       takeUntilDestroyed(this.#destroyRef) // Stoppe l'intervalle quand le composant est détruit
     )
   }
