@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs addUser
+.PHONY: help install build run stop down update logs create addUser
 
 .DEFAULT_GOAL := help
 
@@ -21,6 +21,7 @@ help:
 	@echo "  down     Remove container"
 	@echo "  update   Pull code, stop/down old container, run new"
 	@echo "  logs     Follow container logs (ctrl+c to quit)"
+	@echo "  create   Initialize database with proper permissions"
 	@echo "  addUser  Add or update a user in docker/nginx/.htpasswd (on host)"
 
 install:
@@ -82,8 +83,29 @@ logs:
 	@echo "Showing logs for container '$(CONTAINER_NAME)' (ctrl+c to quit)..."
 	docker logs -f $(CONTAINER_NAME)
 
+error-logs:
+	@echo "Getting error logs from container..."
+	@echo "=== Docker container logs ==="
+	docker logs $(CONTAINER_NAME) --tail 20
+	@echo ""
+	@echo "=== Nginx error logs ==="
+	docker exec $(CONTAINER_NAME) cat /var/log/nginx/error.log 2>/dev/null || echo "No nginx error log found"
+	@echo ""
+	@echo "=== Nginx access logs ==="
+	docker exec $(CONTAINER_NAME) cat /var/log/nginx/access.log 2>/dev/null || echo "No nginx access log found"
+
 bash:
 	docker exec -it aoctimermap_container bash
+
+create:
+	@echo "Initializing database and permissions..."
+	mkdir -p db
+	touch db/mydb.sqlite
+	@echo "Setting proper permissions for database..."
+	sudo chown -R $(WEB_USER):$(WEB_USER) db
+	sudo chmod -R ug+rw db
+	@echo "Database initialized at db/mydb.sqlite"
+	@echo "If container is running, restart it: make restart"
 
 addUser:
 	@echo "Add/Update user in docker/nginx/.htpasswd on the host..."
