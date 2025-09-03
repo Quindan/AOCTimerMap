@@ -65,7 +65,8 @@ export class MarkersApiService {
     return this.http.get<CustomMarker[]>(`${this.#baseUrl}`).pipe(
       catchError((error) => {
         console.error('API Error:', error);
-        return throwError(() => new Error('An error occurred while creating the marker.'));
+        // Fallback: ne pas casser l'app, renvoyer des données locales (ou vide)
+        return of(this.markers);
       })
     );
   }
