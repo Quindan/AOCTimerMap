@@ -4,9 +4,9 @@
 
 header('Content-Type: application/json; charset=utf-8');
 // For cross-origin if needed:
-// header('Access-Control-Allow-Origin: *');
-// header('Access-Control-Allow-Methods: GET, POST');
-// header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
 $dbFile = '/var/www/db/mydb.sqlite';
 
@@ -24,16 +24,16 @@ CREATE TABLE IF NOT EXISTS markers (
   alarmAfter INTEGER,
   inGameCoord TEXT,
   type TEXT,
-  state TEXT
+  missing INTEGER,
+  rarity TEXT DEFAULT 'common'
 )
 ");
-
 
 $action = isset($_GET['action']) ? $_GET['action'] : null;
 
 // GET => list all markers (if no specific action)
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !$action) {
-    $stmt = $db->prepare("SELECT id, label, lat, lng, startTime, alarmAfter, inGameCoord, type, state FROM markers");
+    $stmt = $db->prepare("SELECT id, label, lat, lng, startTime, alarmAfter, inGameCoord, type, missing, rarity FROM markers");
     $stmt->execute();
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($rows);
@@ -48,17 +48,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create') {
         // Insert a new marker
         $stmt = $db->prepare("
-            INSERT INTO markers (label, lat, lng, startTime, alarmAfter, inGameCoord, type)
-            VALUES (:label, :lat, :lng, :startTime, :alarmAfter, :inGameCoord, :type)
+            INSERT INTO markers (label, lat, lng, startTime, alarmAfter, inGameCoord, type, rarity, missing)
+            VALUES (:label, :lat, :lng, :startTime, :alarmAfter, :inGameCoord, :type, :rarity, :missing)
         ");
         $stmt->execute([
             ':label'      => $data['label'] ?? '',
             ':lat'        => $data['lat'] ?? 0,
             ':lng'        => $data['lng'] ?? 0,
             ':startTime'  => $data['startTime'] ?? (time()*1000),
-            ':alarmAfter' => $data['alarmAfter'] ?? 60,
+            ':alarmAfter' => $data['alarmAfter'] ?? 1800,
             ':inGameCoord'=> $data['inGameCoord'] ?? '',
-            ':type'       => $data['type'] ?? ''
+            ':type'       => $data['type'] ?? '',
+            ':missing'    => $data['missing'] ?? 1800,
+            ':rarity'     => $data['rarity'] ?? 'common' // Default value
         ]);
         $newId = $db->lastInsertId();
 
@@ -89,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 alarmAfter = :alarmAfter,
                 inGameCoord = :inGameCoord,
                 type = :type,
-                state = :state
+                missing = :missing,
+                rarity = :rarity
             WHERE id = :id
         ");
         $stmt->execute([
@@ -100,8 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':alarmAfter' => $data['alarmAfter'] ?? 1800,
             ':inGameCoord'=> $data['inGameCoord'] ?? '',
             ':type'       => $data['type'] ?? '',
-            ':id'         => $data['id'],
-            ':state'      => $data['state']
+            ':missing'      => $data['missing'],
+            ':rarity'     => $data['rarity'] ?? 'common',
+            ':id'         => $data['id']
         ]);
         echo json_encode(['success' => true]);
         exit;
