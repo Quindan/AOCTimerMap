@@ -14,16 +14,144 @@ marqueur rouge pendant le temps où c'est en cooldown. Si tu récupere la resour
 4h après, le pin repasse bleu. Je reprend le willow. Je clic sur le pin, tape 'r' pour reset. Il redevient rouge pour tout le monde. si les gens zoom, ils voyent le timer précis.
 
 
-# Install
-Install docker and makefile 
+# Requirements
 
+## System Requirements
+
+Before deploying AOCTimerMap, ensure your server has the following dependencies installed:
+
+### Essential Tools
+- **Git** - Version control (usually pre-installed)
+- **Make** - Build automation tool
+- **Build-essential** - Compilation tools (gcc, g++, etc.)
+
+### Container Platform
+- **Docker** - Container runtime and engine
+
+### Web Server Tools  
+- **Apache2-utils** - Provides `htpasswd` for basic authentication
+
+## Installation Commands
+
+### Ubuntu/Debian Server Setup
+
+```bash
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Install essential build tools and make
+sudo apt install -y make build-essential
+
+# Install Docker (official script)
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Install apache2-utils for basic auth
+sudo apt install -y apache2-utils
+
+# Verify installations
+make --version
+docker --version
+htpasswd
 ```
+
+### Alternative: One-Line Installation
+
+```bash
+# Complete server setup in one command
+sudo apt update -y && sudo apt install -y make build-essential apache2-utils && curl -fsSL https://get.docker.com | sh
+```
+
+## Deployment
+
+### Quick Deployment
+
+```bash
+# Clone the project
+git clone https://github.com/Quindan/AOCTimerMap.git
+cd AOCTimerMap
+
+# Install dependencies and deploy
+make install && make build && make create && make run
+```
+
+### Manual Step-by-Step
+
+```bash
+# 1. Install local dependencies (creates db/, sets permissions)
 make install
+
+# 2. Build Docker image
+make build
+
+# 3. Initialize database with proper permissions
+make create
+
+# 4. Run the application
 make run
 ```
 
-# Known issue
-- install : Need to fiddle with right for db/ or src/db/
-- pin: cancel pin creation don't work properly
-- pin: delay for pin getting the right color, will move to icon instead of le css rotation
-- icons: missing a lot of icons, maybe directly taken from codex instead of copying, but would lose the ease to use
+### Set Authentication Password
+
+The application uses HTTP Basic Authentication with nginx. You need to create a `.htpasswd` file:
+
+```bash
+# Create/update user with username and password
+make addUser USER=invicta ARGS="-c"
+
+# Or manually create .htpasswd:
+htpasswd -cb docker/nginx/.htpasswd invicta invicta
+
+# After creating/updating auth, restart the container:
+make restart
+```
+
+**Default credentials:** `invicta:invicta`
+
+## Verification
+
+After deployment, verify the application is running:
+
+```bash
+# Check container status
+docker ps
+
+# Test web access (should return 401 - authentication required)
+curl -I http://your-server-ip/
+
+# Check application logs
+make logs
+
+# Get detailed error logs (Docker + Nginx errors and access logs)
+make error-logs
+```
+
+Your application will be accessible at `http://your-server-ip/` with basic authentication.
+
+# Database Management
+
+## Initialize Database
+
+If you encounter database errors like "unable to open database file", run:
+
+```bash
+# Initialize database with proper permissions
+make create
+
+# Restart container to apply changes
+make restart
+```
+
+This command:
+- Creates the `db/` directory if missing
+- Creates `mydb.sqlite` file
+- Sets proper permissions for www-data user
+- Ensures the container can access the database
+
+## Known Issues
+
+- **Database Path**: The SQLite database must be accessible at `/var/www/db/mydb.sqlite` inside the container
+- **Permissions**: Database files need `www-data:www-data` ownership and `ug+rw` permissions
+- **Pin Creation**: Cancel pin creation doesn't work properly
+- **Pin Colors**: Delay for pin getting the right color, will move to icon instead of CSS rotation
+- **Icons**: Missing icons - consider taking directly from codex instead of copying

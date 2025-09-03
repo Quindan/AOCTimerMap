@@ -8,7 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 // header('Access-Control-Allow-Methods: GET, POST');
 // header('Access-Control-Allow-Headers: Content-Type');
 
-$dbFile = __DIR__ . '/db/mydb.sqlite';
+$dbFile = '/var/www/db/mydb.sqlite';
 
 $db = new PDO('sqlite:' . $dbFile);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
