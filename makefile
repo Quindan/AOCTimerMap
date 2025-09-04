@@ -99,13 +99,28 @@ bash:
 
 create:
 	@echo "Initializing database and permissions..."
-	mkdir -p db
+	mkdir -p db data
 	touch db/mydb.sqlite
 	@echo "Setting proper permissions for database..."
 	sudo chown -R $(WEB_USER):$(WEB_USER) db
 	sudo chmod -R ug+rw db
 	@echo "Database initialized at db/mydb.sqlite"
 	@echo "If container is running, restart it: make restart"
+
+fetch-named-mobs:
+	@echo "Fetching named mobs data from Ashes Codex API..."
+	php scripts/fetch_named_mobs.php
+	@echo "Named mobs data saved to data/named_mobs.json and data/named_mobs.sql"
+
+import-named-mobs: fetch-named-mobs
+	@echo "Importing named mobs into database..."
+	@if [ -f "data/named_mobs.sql" ]; then \
+		echo "Importing SQL data..."; \
+		sqlite3 db/mydb.sqlite < data/named_mobs.sql; \
+		echo "Named mobs imported successfully!"; \
+	else \
+		echo "Error: data/named_mobs.sql not found. Run 'make fetch-named-mobs' first."; \
+	fi
 
 addUser:
 	@echo "Add/Update user in docker/nginx/.htpasswd on the host..."
