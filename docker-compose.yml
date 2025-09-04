@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Main production service (main branch)
+  aoctimermap-main:
+    build: .
+    container_name: aoctimermap_main
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./db:/var/www/db
+      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
+    environment:
+      - BRANCH=main
+      - ENVIRONMENT=production
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+
+  # Development/testing service for branches
+  aoctimermap-dev:
+    build: .
+    container_name: aoctimermap_dev
+    ports:
+      - "8080:80"  # Different port for testing
+    volumes:
+      - ./src:/var/www/html
+      - ./db-dev:/var/www/db  # Separate dev database
+      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
+    environment:
+      - BRANCH=development
+      - ENVIRONMENT=development
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+    profiles:
+      - dev  # Only start with --profile dev
+
+  # Feature branch testing service
+  aoctimermap-feature:
+    build: .
+    container_name: aoctimermap_feature
+    ports:
+      - "8081:80"  # Another port for feature testing
+    volumes:
+      - ./src:/var/www/html
+      - ./db-feature:/var/www/db  # Separate feature database
+      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
+    environment:
+      - BRANCH=feature
+      - ENVIRONMENT=testing
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+    profiles:
+      - feature  # Only start with --profile feature
+
+networks:
+  aoctimermap-network:
+    driver: bridge

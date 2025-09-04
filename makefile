@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs create addUser
+.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch
 
 .DEFAULT_GOAL := help
 
@@ -23,6 +23,13 @@ help:
 	@echo "  logs     Follow container logs (ctrl+c to quit)"
 	@echo "  create   Initialize database with proper permissions"
 	@echo "  addUser  Add or update a user in docker/nginx/.htpasswd (on host)"
+	@echo ""
+	@echo "Docker Compose Commands:"
+	@echo "  compose-up       Start main production service"
+	@echo "  compose-down     Stop all services"
+	@echo "  compose-dev      Start development service (port 8080)"
+	@echo "  compose-feature  Start feature testing service (port 8081)"
+	@echo "  deploy-branch    Deploy specific branch (usage: make deploy-branch BRANCH=feature/named-timers ENV=feature)"
 
 install:
 	@echo "Installing apache2-utils (provides 'htpasswd') on the host..."
@@ -121,6 +128,41 @@ import-named-mobs: fetch-named-mobs
 	else \
 		echo "Error: data/named_mobs.sql not found. Run 'make fetch-named-mobs' first."; \
 	fi
+
+# Docker Compose commands
+compose-up:
+	@echo "Starting main production service with docker-compose..."
+	docker-compose up -d aoctimermap-main
+	@echo "Service available at http://localhost"
+
+compose-down:
+	@echo "Stopping all docker-compose services..."
+	docker-compose down
+
+compose-dev:
+	@echo "Starting development service with docker-compose..."
+	mkdir -p db-dev
+	touch db-dev/mydb.sqlite
+	sudo chown -R $(WEB_USER):$(WEB_USER) db-dev
+	sudo chmod -R ug+rw db-dev
+	docker-compose --profile dev up -d aoctimermap-dev
+	@echo "Development service available at http://localhost:8080"
+
+compose-feature:
+	@echo "Starting feature testing service with docker-compose..."
+	mkdir -p db-feature
+	touch db-feature/mydb.sqlite
+	sudo chown -R $(WEB_USER):$(WEB_USER) db-feature
+	sudo chmod -R ug+rw db-feature
+	docker-compose --profile feature up -d aoctimermap-feature
+	@echo "Feature service available at http://localhost:8081"
+
+deploy-branch:
+	@echo "Deploying branch with deployment script..."
+	@BRANCH=${BRANCH:-main}; \
+	ENV=${ENV:-development}; \
+	echo "Branch: $$BRANCH, Environment: $$ENV"; \
+	./scripts/branch-deploy.sh "$$BRANCH" "$$ENV"
 
 addUser:
 	@echo "Add/Update user in docker/nginx/.htpasswd on the host..."
