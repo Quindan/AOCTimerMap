@@ -18,7 +18,7 @@ $dbFile = '/var/www/db/mydb.sqlite';
 
 try {
     $db = new PDO('sqlite:' . $dbFile);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO_EXCEPTION);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Create named_mobs table if it doesn't exist
     $createTableSQL = "
