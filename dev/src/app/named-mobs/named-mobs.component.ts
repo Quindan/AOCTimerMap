@@ -76,7 +76,7 @@ export class NamedMobsComponent implements OnInit, OnDestroy {
       
       const matchesLevel = !this.selectedLevel || mob.level === this.selectedLevel;
       
-      const hasActiveTimer = this.getActiveTimerForMob(mob.id!) !== null;
+      const hasActiveTimer = mob.id ? this.getActiveTimerForMob(mob.id) !== null : false;
       const matchesActiveFilter = !this.showOnlyActive || hasActiveTimer;
       
       return matchesSearch && matchesLevel && matchesActiveFilter;

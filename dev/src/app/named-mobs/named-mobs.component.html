@@ -160,10 +160,10 @@
 
         <!-- Show active timer for this mob if exists -->
         <div 
-          *ngIf="getActiveTimerForMob(mob.id)" 
+          *ngIf="mob.id && getActiveTimerForMob(mob.id)" 
           class="active-timer-indicator">
           <div class="timer-status">
-            🕐 {{formatTimeRemaining(getActiveTimerForMob(mob.id)!)}}
+            🕐 {{formatTimeRemaining(getActiveTimerForMob(mob.id!)!)}}
           </div>
         </div>
       </div>
