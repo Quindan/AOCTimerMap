@@ -76,11 +76,15 @@ export class NamedMobsComponent implements OnInit, OnDestroy {
       
       const matchesLevel = !this.selectedLevel || mob.level === this.selectedLevel;
       
-      const hasActiveTimer = this.activeTimers.some(timer => timer.named_mob_id === mob.id);
+      const hasActiveTimer = this.getActiveTimerForMob(mob.id!) !== null;
       const matchesActiveFilter = !this.showOnlyActive || hasActiveTimer;
       
       return matchesSearch && matchesLevel && matchesActiveFilter;
     });
+  }
+
+  getActiveTimerForMob(mobId: number): NamedMobTimer | null {
+    return this.activeTimers.find(timer => timer.named_mob_id === mobId) || null;
   }
 
   onSearchChange() {

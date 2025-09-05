@@ -64,8 +64,8 @@
         
         <div class="timer-header">
           <h4 class="mob-name">{{timer.mob_name}}</h4>
-          <span class="level-badge" [ngClass]="getLevelClass(timer.level)">
-            Lv.{{timer.level}}
+          <span class="level-badge" [ngClass]="getLevelClass(timer.level || 1)">
+            Lv.{{timer.level || '?'}}
           </span>
         </div>
 
@@ -160,10 +160,10 @@
 
         <!-- Show active timer for this mob if exists -->
         <div 
-          *ngIf="activeTimers.find(t => t.named_mob_id === mob.id)" 
+          *ngIf="getActiveTimerForMob(mob.id)" 
           class="active-timer-indicator">
           <div class="timer-status">
-            🕐 {{formatTimeRemaining(activeTimers.find(t => t.named_mob_id === mob.id)!)}}
+            🕐 {{formatTimeRemaining(getActiveTimerForMob(mob.id)!)}}
           </div>
         </div>
       </div>

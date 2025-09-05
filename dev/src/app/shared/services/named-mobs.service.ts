@@ -251,7 +251,7 @@ export class NamedMobsService {
     
     return {
       imported: result.imported!,
-      total_mobs: result.total_mobs || 0,
+      total_mobs: result.total || 0,
       message: result.message!
     };
   }
