@@ -6,7 +6,7 @@ services:
     image: solidnerd/bookstack:latest
     container_name: bookstack-prod
     ports:
-      - "8083:80"  # BookStack on port 8083 (production)
+      - "8083:8080"  # BookStack on port 8083 (production)
     volumes:
       - ./bookstack-data:/app/storage
       - ./bookstack-backups:/backups
