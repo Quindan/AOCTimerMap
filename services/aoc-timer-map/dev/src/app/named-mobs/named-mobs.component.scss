@@ -1,0 +1,336 @@
+.named-mobs-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  h2 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #666;
+    
+    a {
+      color: #007bff;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    
+    label {
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      
+      input[type="checkbox"] {
+        width: auto;
+      }
+    }
+  }
+  
+  .import-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    align-self: flex-end;
+    
+    &:hover:not(:disabled) {
+      background: #218838;
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.timers-section, .mobs-section {
+  margin-bottom: 30px;
+  
+  h3 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+  }
+}
+
+.timers-grid, .mobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.timer-card, .mob-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+}
+
+.timer-header, .mob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  
+  .mob-name {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.level-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  
+  &.level-low {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  &.level-medium {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  &.level-high {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  &.level-max {
+    background: #d1ecf1;
+    color: #0c5460;
+  }
+}
+
+.timer-info {
+  .countdown {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    
+    .time {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+  
+  .timer-details {
+    font-size: 14px;
+    line-height: 1.5;
+    
+    div {
+      margin-bottom: 5px;
+      
+      strong {
+        color: #555;
+      }
+    }
+  }
+}
+
+.timer-actions, .mob-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  
+  button {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    
+    &.start-timer-btn {
+      background: #007bff;
+      color: white;
+      
+      &:hover {
+        background: #0056b3;
+      }
+    }
+    
+    &.codex-btn {
+      background: #6f42c1;
+      color: white;
+      
+      &:hover {
+        background: #5a32a3;
+      }
+    }
+    
+    &.delete-btn {
+      background: #dc3545;
+      color: white;
+      
+      &:hover {
+        background: #c82333;
+      }
+    }
+  }
+}
+
+// Timer status classes
+.timer-card {
+  &.status-spawned {
+    border-left: 4px solid #28a745;
+    
+    .status {
+      background: #d4edda;
+      color: #155724;
+    }
+  }
+  
+  &.status-soon {
+    border-left: 4px solid #ffc107;
+    
+    .status {
+      background: #fff3cd;
+      color: #856404;
+    }
+  }
+  
+  &.status-waiting {
+    border-left: 4px solid #6c757d;
+    
+    .status {
+      background: #e2e3e5;
+      color: #383d41;
+    }
+  }
+}
+
+.active-timer-indicator {
+  margin-top: 10px;
+  padding: 8px;
+  background: #e3f2fd;
+  border-radius: 4px;
+  text-align: center;
+  
+  .timer-status {
+    font-size: 12px;
+    font-weight: 500;
+    color: #1565c0;
+  }
+}
+
+.mob-info {
+  margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.5;
+  
+  div {
+    margin-bottom: 5px;
+    
+    strong {
+      color: #555;
+    }
+  }
+}
+
+.loading, .no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    
+    .filter-group {
+      width: 100%;
+    }
+  }
+  
+  .timers-grid, .mobs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .timer-actions, .mob-actions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+}

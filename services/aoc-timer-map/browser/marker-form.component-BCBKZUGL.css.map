@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/marker-form/marker-form.component.scss"],
+  "sourcesContent": [".marker-form {\n    min-height: 480px;\n}\n"],
+  "mappings": "AAAA,CAAA,YACI,WAAA",
+  "names": []
+}

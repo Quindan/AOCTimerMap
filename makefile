@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch
+.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup
 
 .DEFAULT_GOAL := help
 
@@ -30,6 +30,17 @@ help:
 	@echo "  compose-dev      Start development service (port 8080)"
 	@echo "  compose-feature  Start feature testing service (port 8081)"
 	@echo "  deploy-branch    Deploy specific branch (usage: make deploy-branch BRANCH=feature/named-timers ENV=feature)"
+	@echo ""
+	@echo "Development Commands:"
+	@echo "  local            Build complete local environment (port 9090)"
+	@echo "  dev              Quick Angular rebuild and container restart"
+	@echo ""
+	@echo "Production Commands:"
+	@echo "  prod             Deploy to production with backup and complete build (port 80)"
+	@echo "  prod-stop        Stop production container"
+	@echo "  prod-logs        Show production container logs"
+	@echo "  prod-status      Show production container status"
+	@echo "  prod-backup      Create production database backup"
 
 install:
 	@echo "Installing apache2-utils (provides 'htpasswd') on the host..."
@@ -107,12 +118,13 @@ bash:
 create:
 	@echo "Initializing database and permissions..."
 	mkdir -p db data
-	touch db/mydb.sqlite
+	@if [ ! -f db/mydb.sqlite ]; then \
+		touch db/mydb.sqlite || sudo touch db/mydb.sqlite; \
+	fi
 	@echo "Setting proper permissions for database..."
-	sudo chown -R $(WEB_USER):$(WEB_USER) db
-	sudo chmod -R ug+rw db
+	sudo chown -R $$USER:$$USER db data || true
+	chmod -R 755 db data || true
 	@echo "Database initialized at db/mydb.sqlite"
-	@echo "If container is running, restart it: make restart"
 
 fetch-named-mobs:
 	@echo "Fetching named mobs data from Ashes Codex API..."
@@ -127,6 +139,150 @@ import-named-mobs: fetch-named-mobs
 		echo "Named mobs imported successfully!"; \
 	else \
 		echo "Error: data/named_mobs.sql not found. Run 'make fetch-named-mobs' first."; \
+	fi
+
+# InvictaWeb Hub commands
+hub-build:
+	@echo "🏗️ Building InvictaWeb..."
+	docker build -f Dockerfile.monolith -t invictaweb:latest .
+	@echo "InvictaWeb built successfully!"
+
+# Simplified working local setup
+local:
+	@echo "🚀 Building complete local environment from scratch..."
+	
+	@echo "📦 Building Docker image..."
+	docker build -t $(IMAGE_NAME) .
+	
+	@echo "🧹 Cleaning Angular cache and rebuilding..."
+	cd services/aoc-timer-map/dev && npm run ng cache clean 2>/dev/null || true
+	cd services/aoc-timer-map/dev && npm run build
+	
+	@echo "📁 Copying Angular build files (preserving custom files)..."
+	# Copy only the JS/CSS files from Angular build, preserve our custom index.html
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.css services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/favicon.ico services/aoc-timer-map/ 2>/dev/null || true
+	
+	@echo "📄 Setting up map routing..."
+	mkdir -p services/aoc-timer-map/map
+	# Copy the Angular index.html only to the map subdirectory
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
+	
+	# Add timestamp to prevent caching
+	sed -i "s/<!-- Dev build: \$(date) -->/<!-- Dev build: $$(date) -->/" services/aoc-timer-map/map/index.html
+	mkdir -p services/aoc-timer-map/assets/icons
+	
+	@echo "🛑 Stopping existing container..."
+	docker stop invictaweb-local 2>/dev/null || true
+	docker rm invictaweb-local 2>/dev/null || true
+	
+	@echo "🚀 Starting fresh container..."
+	docker run -d --name invictaweb-local \
+		-p 9090:80 \
+		-v $(PWD)/db:/var/www/db \
+		-v $(PWD)/services/aoc-timer-map:/var/www/html \
+		-v $(PWD)/infrastructure/nginx/simple.conf:/etc/nginx/http.d/default.conf \
+		-v $(PWD)/.htpasswd:/etc/nginx/.htpasswd \
+		$(IMAGE_NAME):latest
+	
+	@echo ""
+	@echo "🎉 InvictaWeb fully rebuilt and running!"
+	@echo "🏠 Landing Page: http://localhost:9090/"
+	@echo "🗺️  Timer Map: http://localhost:9090/map/"
+	@echo "📖 Guild Wiki: http://localhost:9090/guides/"
+	@echo "🏆 Named Mobs: http://localhost:9090/named-mobs"
+	@echo "🔐 Login: invicta / password"
+	@echo "🚫 All caching disabled for development"
+	@echo ""
+	@echo "🧪 Testing connection..."
+	@sleep 3
+	@curl -s -u invicta:password -o /dev/null -w "Main App: %{http_code}\n" http://localhost:9090/
+	@curl -s -u invicta:password -o /dev/null -w "Named Mobs: %{http_code}\n" http://localhost:9090/named-mobs
+
+# Development: Only rebuild Angular and restart container
+dev:
+	@echo "🔄 Rebuilding Angular and restarting container..."
+	@echo "🧹 Cleaning Angular cache and rebuilding..."
+	cd services/aoc-timer-map/dev && npm run ng cache clean 2>/dev/null || true
+	cd services/aoc-timer-map/dev && npm run build
+	
+	@echo "📁 Copying Angular build files (preserving custom files)..."
+	# Copy only the JS/CSS files from Angular build, preserve our custom index.html
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.css services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/ 2>/dev/null || true
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/favicon.ico services/aoc-timer-map/ 2>/dev/null || true
+	
+	@echo "📄 Setting up map routing..."
+	mkdir -p services/aoc-timer-map/map
+	# Copy the Angular index.html only to the map subdirectory
+	cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
+	
+	# Add timestamp to prevent caching
+	sed -i "s/<!-- Dev build: \$(date) -->/<!-- Dev build: $$(date) -->/" services/aoc-timer-map/map/index.html
+	
+	@echo "🔄 Restarting container..."
+	docker restart invictaweb-local
+	
+	@echo "✅ Development rebuild complete!"
+	@echo "🏠 Landing Page: http://localhost:9090/"
+	@echo "🗺️  Timer Map: http://localhost:9090/map/"
+
+hub-start: create
+	@echo "🚀 Starting InvictaWeb..."
+	@echo "📁 Ensuring directories exist..."
+	mkdir -p logs/nginx logs/php
+	@echo "🐳 Starting services..."
+	docker compose -f docker-compose.hub.yml up -d
+	@echo ""
+	@echo "🎉 InvictaWeb is running!"
+	@echo "🌐 Portal: http://localhost:9090/"
+	@echo "🗺️  Map: http://localhost:9090/map/"
+	@echo "📚 API Docs: http://localhost:9090/api-docs/"
+	@echo "🔍 Health: http://localhost:9090/health"
+	@echo ""
+	@echo "🔐 Login: invicta / password"
+
+hub-logs:
+	@echo "📊 InvictaWeb logs..."
+	docker compose -f docker-compose.hub.yml logs -f
+
+hub-stop:
+	@echo "🛑 Stopping InvictaWeb..."
+	docker compose -f docker-compose.hub.yml down
+	@echo "InvictaWeb stopped."
+
+# Production deployment
+prod-start: create
+	@echo "🚀 Starting InvictaWeb (Production)..."
+	@echo "📁 Ensuring directories exist..."
+	mkdir -p logs/nginx logs/php
+	@echo "🐳 Starting services on port 80..."
+	docker compose -f docker-compose.hub.yml -f docker-compose.prod.yml up -d
+	@echo ""
+	@echo "🎉 InvictaWeb is running in production mode!"
+	@echo "🌐 Portal: http://localhost/"
+	@echo "🗺️  Map: http://localhost/map/"
+	@echo "📚 API Docs: http://localhost/api-docs/"
+	@echo "🔍 Health: http://localhost/health"
+	@echo ""
+	@echo "🔐 Login: invicta / password"
+
+
+# Aliases for convenience
+start: hub-start
+stop: hub-stop
+logs: hub-logs
+
+portal-build:
+	@echo "🏗️ Building main portal..."
+	@if [ -d "services/main-portal" ]; then \
+		cd services/main-portal && npm install && npm run build; \
+		echo "Portal built successfully!"; \
+	else \
+		echo "Portal source not found, using static version"; \
 	fi
 
 # Docker Compose commands
@@ -173,3 +329,92 @@ addUser:
 	@[ -n "$(USER)" ] || (echo "ERROR: Missing USER=..." && exit 1)
 	htpasswd $(ARGS) docker/nginx/.htpasswd $(USER)
 	@echo "User '$(USER)' added/updated. If container is running, you may need to 'make stop' and 'make run' again."
+
+# Production deployment with database backup and complete build
+prod:
+	@echo "🚀 Preparing production deployment..."
+	@echo "📅 Creating timestamp for backup..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	echo "Backup timestamp: $$TIMESTAMP"
+
+	@echo "💾 Creating database backup..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	mkdir -p backups; \
+	if [ -f db/mydb.sqlite ]; then \
+		cp db/mydb.sqlite backups/mydb_backup_$$TIMESTAMP.sqlite; \
+		echo "✅ Database backed up to: backups/mydb_backup_$$TIMESTAMP.sqlite"; \
+	else \
+		echo "⚠️  No existing database found to backup"; \
+	fi
+
+	@echo "🛑 Stopping existing containers..."
+	@docker stop invictaweb-prod 2>/dev/null || true
+	@docker rm invictaweb-prod 2>/dev/null || true
+
+	@echo "🧹 Cleaning Angular cache and rebuilding for production..."
+	@cd services/aoc-timer-map/dev && npm run ng cache clean 2>/dev/null || true
+	@cd services/aoc-timer-map/dev && npm run build --configuration=production
+
+	@echo "📁 Setting up production files..."
+	@mkdir -p services/aoc-timer-map/map
+	@mkdir -p services/aoc-timer-map/assets/icons
+	@mkdir -p services/aoc-timer-map/assets/images
+
+	@echo "📄 Copying Angular production build (preserving custom landing page)..."
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/ 2>/dev/null || true
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.css services/aoc-timer-map/ 2>/dev/null || true
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/ 2>/dev/null || true
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/favicon.ico services/aoc-timer-map/ 2>/dev/null || true
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
+
+	@echo "🐳 Building production Docker image..."
+	@docker build -t $(IMAGE_NAME):prod .
+
+	@echo "🚀 Starting production container on port 80..."
+	@docker run -d --name invictaweb-prod \
+		-p 80:80 \
+		-v $(PWD)/db:/var/www/db \
+		-v $(PWD)/services/aoc-timer-map:/var/www/html \
+		-v $(PWD)/infrastructure/nginx/simple.conf:/etc/nginx/http.d/default.conf \
+		-v $(PWD)/.htpasswd:/etc/nginx/.htpasswd \
+		$(IMAGE_NAME):prod
+
+	@echo ""
+	@echo "🎉 InvictaWeb deployed to production!"
+	@echo "🌐 Production URL: http://localhost/"
+	@echo "🗺️  Timer Map: http://localhost/map/"
+	@echo "📖 Guild Wiki: http://localhost/guides/"
+	@echo "🏆 Named Mobs: http://localhost/named-mobs"
+	@echo "🔐 Login: invicta / password"
+	@echo ""
+	@echo "🧪 Testing production deployment..."
+	@sleep 3
+	@curl -s -u invicta:password -o /dev/null -w "Main App: %{http_code}\n" http://localhost/
+	@curl -s -u invicta:password -o /dev/null -w "Named Mobs: %{http_code}\n" http://localhost/named-mobs
+
+# Production management commands
+prod-stop:
+	@echo "🛑 Stopping production container..."
+	@docker stop invictaweb-prod 2>/dev/null || true
+	@docker rm invictaweb-prod 2>/dev/null || true
+	@echo "✅ Production container stopped and removed"
+
+prod-logs:
+	@echo "📋 Showing production container logs..."
+	@docker logs invictaweb-prod
+
+prod-status:
+	@echo "📊 Production container status..."
+	@docker ps -a --filter name=invictaweb-prod
+
+prod-backup:
+	@echo "💾 Creating production database backup..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	mkdir -p backups; \
+	if [ -f db/mydb.sqlite ]; then \
+		cp db/mydb.sqlite backups/mydb_backup_$$TIMESTAMP.sqlite; \
+		echo "✅ Database backed up to: backups/mydb_backup_$$TIMESTAMP.sqlite"; \
+		ls -la backups/mydb_backup_$$TIMESTAMP.sqlite; \
+	else \
+		echo "⚠️  No database found to backup"; \
+	fi

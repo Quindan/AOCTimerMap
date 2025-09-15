@@ -1,0 +1,256 @@
+import { Injectable, signal } from '@angular/core';
+import { CustomMarker } from '../interface/marker.interface';
+import { RESOURCE_CATEGORIES } from '../../map/enums/ressources';
+import { getUnixTime } from 'date-fns';
+import * as L from 'leaflet';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MapService {
+  map!: L.Map;  
+  markers: L.Marker[] = [];
+  customMarkers: CustomMarker[] = [];
+  selectedResources: string[] = [];
+  selectedRarities: string[] = [];
+  selectedRespawnIn: number = 0;
+  showNamedMobs: boolean = false;
+  namedMobMarkers: L.Marker[] = [];
+
+  saveMarkerLocaly(marker: L.Marker) {
+    this.markers.push(marker);
+  }
+
+  updateMarkerById(updatedMarkerData: L.Marker) {
+    let foundMarker: L.Marker = this.markers.filter((marker) => marker.customData?.id === updatedMarkerData.customData?.id)[0];
+
+    if (foundMarker) {
+      foundMarker = updatedMarkerData
+    }
+  }
+
+  clearAllMarkers(): void {
+    // Only clear regular markers, not named mob markers
+    this.markers.forEach(marker => {
+      if (!(marker as any).isNamedMob && !(marker as any).isFromAPI) {
+        this.map.removeLayer(marker);
+      }
+    }); 
+    this.markers = this.markers.filter(marker => 
+      (marker as any).isNamedMob || (marker as any).isFromAPI
+    );     
+  }
+
+  removeMarkerLocaly(marker: L.Marker): void {
+    // Prevent deletion of named mob markers
+    if ((marker as any).isNamedMob || (marker as any).isFromAPI) {
+      console.log('Cannot delete named mob markers - they are read-only');
+      return;
+    }
+
+    // Supprimer le marqueur de la carte
+    this.map.removeLayer(marker);
+
+    // Retirer le marqueur du tableau
+    this.markers = this.markers.filter(m => m !== marker);
+    this.customMarkers = this.customMarkers.filter(cm => cm.id !== marker.customData?.id);
+  }
+
+  showFilteredMap() {
+    const now = getUnixTime(new Date());
+    const filteredMarkers = this.markers.filter((marker) => {
+      const customData: CustomMarker = (marker as any).customData;
+      
+      // Skip named mob markers - they are handled separately
+      if ((marker as any).isNamedMob || (marker as any).isFromAPI) {
+        return false;
+      }
+  
+      // Si aucune ressource ou rareté n'est sélectionnée, ignorer ce filtre
+      const matchesResource =
+        this.selectedResources.length === 0 || this.selectedResources.includes(customData.type);
+      const matchesRarity =
+        this.selectedRarities.length === 0 || this.selectedRarities.includes(customData.rarity);
+
+      const respawnIn = customData.alarmAfter - now;
+      // -3600 stand to display ressources that spawned 1h ago
+      const isRespawnInRange = respawnIn > -3600 && respawnIn < (this.selectedRespawnIn * 60);
+      const matchesRespawnIn =   
+        this.selectedRespawnIn === 0 || isRespawnInRange; 
+
+      return customData && matchesResource && matchesRarity && matchesRespawnIn;
+    });
+
+    // Ajouter les markers filtrés à la carte
+    filteredMarkers.forEach((marker) => marker.addTo(this.map));
+          
+    // Retirer les markers non filtrés de la carte (but keep named mob markers)
+    this.markers
+      .filter((marker) => 
+        !filteredMarkers.includes(marker) && 
+        !(marker as any).isNamedMob && 
+        !(marker as any).isFromAPI
+      )
+      .forEach((marker) => this.map.removeLayer(marker));
+
+    // Handle named mob markers
+    this.handleNamedMobMarkers();
+  }
+
+  handleNamedMobMarkers() {
+    // Remove all named mob markers from map
+    this.namedMobMarkers.forEach(marker => this.map.removeLayer(marker));
+    this.namedMobMarkers = [];
+
+    // Add named mob markers if enabled
+    if (this.showNamedMobs) {
+      this.loadNamedMobMarkers();
+    }
+  }
+
+  loadNamedMobMarkers() {
+    fetch('/named_mobs_api.php', {
+      credentials: 'include'
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Named mobs API response:', data);
+        if (data.success && data.data) {
+          console.log(`Loading ${data.data.length} named mobs`);
+          data.data.forEach((mob: any) => {
+            if (mob.location_x !== null && mob.location_y !== null) {
+              console.log(`Creating marker for ${mob.name} at [${mob.location_x}, ${mob.location_y}]`);
+              this.createNamedMobMarker(mob);
+            }
+          });
+          console.log(`Created ${this.namedMobMarkers.length} named mob markers`);
+        } else {
+          console.error('Invalid API response structure:', data);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading named mobs:', error);
+      });
+  }
+
+  // Coordinate transformation function
+  // Calibrated using Wormwig and Ysshokk reference points for better accuracy
+  private transformNamedMobCoordinates(location_x: number, location_y: number): [number, number] {
+    // Reference point 1: Wormwig
+    // Map coords: lat=-226.875, lng=133.9375
+    // Named mob coords: location_x=-706687.07770862, location_y=520419.79012307
+    
+    // Reference point 2: Ysshokk
+    // Map coords: lat=-238.3125, lng=154.125
+    // Named mob coords: location_x=-620215.59419062, location_y=562506.7933321
+    
+    // Calculate transformation using both reference points for better accuracy
+    const ref1MapLat = -226.875;
+    const ref1MapLng = 133.9375;
+    const ref1NamedX = -706687.07770862;
+    const ref1NamedY = 520419.79012307;
+    
+    const ref2MapLat = -238.3125;
+    const ref2MapLng = 154.125;
+    const ref2NamedX = -620215.59419062;
+    const ref2NamedY = 562506.7933321;
+    
+    // Calculate scale factors using both reference points
+    // X to Lng transformation
+    const deltaLng = ref2MapLng - ref1MapLng;
+    const deltaNamedX = ref2NamedX - ref1NamedX;
+    const scaleX = deltaLng / deltaNamedX;
+    
+    // Y to Lat transformation
+    const deltaLat = ref2MapLat - ref1MapLat;
+    const deltaNamedY = ref2NamedY - ref1NamedY;
+    const scaleY = deltaLat / deltaNamedY;
+    
+    // Calculate offset using reference point 1
+    const offsetLng = ref1MapLng - (ref1NamedX * scaleX);
+    const offsetLat = ref1MapLat - (ref1NamedY * scaleY);
+    
+    // Transform coordinates using the calculated scale and offset
+    const lng = (location_x * scaleX) + offsetLng;
+    const lat = (location_y * scaleY) + offsetLat;
+    
+    console.log(`Transforming coordinates: [${location_x}, ${location_y}] -> [${lat.toFixed(5)}, ${lng.toFixed(5)}]`);
+    
+    return [lat, lng];
+  }
+
+  createNamedMobMarker(mob: any) {
+    // Parse respawn time range (e.g., "30-45 minutes", "900 seconds", "30 minutes")
+    let minRespawnMinutes = 30; // default
+    let displayTimeRange = mob.respawn_time || 'Unknown';
+    
+    if (mob.respawn_time) {
+      // Handle different formats: "30-45 minutes", "900 seconds", "30 minutes"
+      const rangeMatch = mob.respawn_time.match(/(\d+)-(\d+)/);
+      const singleMatch = mob.respawn_time.match(/(\d+)/);
+      
+      if (rangeMatch) {
+        // Range format: "30-45 minutes" -> use minimum (30)
+        minRespawnMinutes = parseInt(rangeMatch[1]);
+        displayTimeRange = mob.respawn_time; // Show full range
+      } else if (singleMatch) {
+        // Single number: could be seconds or minutes
+        const number = parseInt(singleMatch[1]);
+        if (mob.respawn_time.includes('second')) {
+          // Convert seconds to minutes
+          minRespawnMinutes = Math.ceil(number / 60);
+          displayTimeRange = `${minRespawnMinutes} minutes (from ${number} seconds)`;
+        } else {
+          // Already in minutes
+          minRespawnMinutes = number;
+          displayTimeRange = `${number} minutes`;
+        }
+      }
+    }
+    
+    // Transform coordinates from named mob system to map system
+    const [lat, lng] = this.transformNamedMobCoordinates(mob.location_x, mob.location_y);
+    
+    const icon = L.divIcon({
+      className: 'custom-marker named-mob-marker',
+      html: `
+        <div class="marker-container">
+          <div class="named-mob-icon">🏆</div>
+          <div class="custom-badge badge-named"></div>
+        </div>
+      `,
+      iconSize: [48, 48],
+      iconAnchor: [24, 24]
+    });
+
+    const marker = L.marker([lat, lng], { icon })
+      .addTo(this.map);
+
+    // Store mob data - mark as non-deletable named mob
+    (marker as any).mobData = mob;
+    (marker as any).minRespawnMinutes = minRespawnMinutes;
+    (marker as any).isNamedMob = true; // Flag to prevent deletion
+    (marker as any).isFromAPI = true; // Flag to indicate it's from API
+
+    // Add popup with timer range info and coordinate info
+    marker.bindPopup(`
+      <div class="named-mob-popup">
+        <h3>🏆 ${mob.name}</h3>
+        <p><strong>Level:</strong> ${mob.level || 'Unknown'}</p>
+        <p><strong>Respawn Range:</strong> ${displayTimeRange}</p>
+        <p><strong>Timer Used:</strong> ${minRespawnMinutes} minutes (minimum)</p>
+        <p><strong>Original Coords:</strong> [${mob.location_x}, ${mob.location_y}]</p>
+        <p><strong>Map Coords:</strong> [${lat.toFixed(5)}, ${lng.toFixed(5)}]</p>
+        <p><strong>Type:</strong> Named Mob (Non-deletable)</p>
+        ${mob.codex_url ? `<p><a href="${mob.codex_url}" target="_blank">View in Codex</a></p>` : ''}
+      </div>
+    `);
+
+    this.namedMobMarkers.push(marker);
+  }
+}
