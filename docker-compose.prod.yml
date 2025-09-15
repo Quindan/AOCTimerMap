@@ -3,20 +3,39 @@ version: '3.8'
 services:
   # BookStack Wiki Service (Production)
   bookstack-prod:
-    image: linuxserver/bookstack:latest
+    image: solidnerd/bookstack:latest
     container_name: bookstack-prod
     ports:
       - "8083:80"  # BookStack on port 8083 (production)
     volumes:
-      - ./bookstack-data:/config
+      - ./bookstack-data:/app/storage
       - ./bookstack-backups:/backups
     environment:
-      - PUID=1000
-      - PGID=1000
       - APP_URL=http://84.247.141.193:8083
       - APP_KEY=base64:df2SHp9jQo9C9GVjGZhA1BfeyGiyG0pn2IlRBzuu8W4=
-      - DB_CONNECTION=sqlite
-      - DB_DATABASE=/config/database.sqlite
+      - DB_CONNECTION=mysql
+      - DB_HOST=bookstack-db-prod
+      - DB_PORT=3306
+      - DB_USERNAME=bookstack
+      - DB_PASSWORD=bookstack_password
+      - DB_DATABASE=bookstack
+    depends_on:
+      - bookstack-db-prod
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+
+  # BookStack Database (Production)
+  bookstack-db-prod:
+    image: mysql:5.7
+    container_name: bookstack-db-prod
+    volumes:
+      - ./bookstack-db-prod:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=bookstack_password
     networks:
       - aoctimermap-network
     restart: unless-stopped
