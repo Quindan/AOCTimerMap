@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup bookstack-up bookstack-down bookstack-backup bookstack-restore
+.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup bookstack-up bookstack-down bookstack-backup bookstack-restore bookstack-prod-up bookstack-prod-down bookstack-prod-backup bookstack-prod-restore
 
 .DEFAULT_GOAL := help
 
@@ -47,6 +47,10 @@ help:
 	@echo "  bookstack-down   Stop BookStack wiki service"
 	@echo "  bookstack-backup Create BookStack database backup"
 	@echo "  bookstack-restore FILE=backup.sql Restore BookStack database"
+	@echo "  bookstack-prod-up Start BookStack in production (port 8083)"
+	@echo "  bookstack-prod-down Stop BookStack production"
+	@echo "  bookstack-prod-backup Create production BookStack backup"
+	@echo "  bookstack-prod-restore FILE=backup.sql Restore production BookStack"
 
 install:
 	@echo "Installing apache2-utils (provides 'htpasswd') on the host..."
@@ -471,3 +475,38 @@ bookstack-restore:
 	@echo "🔄 Restoring from: bookstack-backups/$(FILE)"
 	@docker exec -i bookstack-db mysql -u bookstack -pbookstack_password bookstack < bookstack-backups/$(FILE)
 	@echo "✅ BookStack database restored successfully"
+
+# Production BookStack commands
+bookstack-prod-up:
+	@echo "🚀 Starting BookStack in production mode..."
+	docker-compose -f docker-compose.prod.yml up -d
+	@echo "✅ BookStack production started on port 8083"
+	@echo "🌐 Access: http://84.247.141.193:8083"
+
+bookstack-prod-down:
+	@echo "🛑 Stopping BookStack production..."
+	docker-compose -f docker-compose.prod.yml down
+	@echo "✅ BookStack production stopped"
+
+bookstack-prod-backup:
+	@echo "💾 Creating BookStack production backup..."
+	@mkdir -p bookstack-backups
+	@TIMESTAMP=$$(date +%Y%m%d_%H%M%S); \
+	docker-compose -f docker-compose.prod.yml exec bookstack-db-prod mysqldump -u bookstack -pbookstack_password bookstack > bookstack-backups/bookstack_prod_backup_$$TIMESTAMP.sql; \
+	echo "✅ Production backup created: bookstack-backups/bookstack_prod_backup_$$TIMESTAMP.sql"
+
+bookstack-prod-restore:
+	@echo "📥 Restoring BookStack production database from backup..."
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ Please specify backup file: make bookstack-prod-restore FILE=backup_file.sql"; \
+		echo "Available backups:"; \
+		ls -la bookstack-backups/; \
+		exit 1; \
+	fi
+	@if [ ! -f "bookstack-backups/$(FILE)" ]; then \
+		echo "❌ Backup file not found: bookstack-backups/$(FILE)"; \
+		exit 1; \
+	fi
+	@echo "🔄 Restoring from: bookstack-backups/$(FILE)"
+	@docker exec -i bookstack-db-prod mysql -u bookstack -pbookstack_password bookstack < bookstack-backups/$(FILE)
+	@echo "✅ BookStack production database restored successfully"
