@@ -359,6 +359,13 @@ prod:
 	@mkdir -p services/aoc-timer-map/map
 	@mkdir -p services/aoc-timer-map/assets/icons
 	@mkdir -p services/aoc-timer-map/assets/images
+	
+	@echo "📦 Copying Angular build assets to map directory..."
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/map/
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.css services/aoc-timer-map/map/
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.ico services/aoc-timer-map/map/
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/map/
+	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
 
 	@echo "📄 Copying Angular production build (preserving custom landing page)..."
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/ 2>/dev/null || true
