@@ -366,6 +366,8 @@ prod:
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.ico services/aoc-timer-map/map/
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/map/
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
+	
+	@echo "⚠️  Preserving custom landing page (not overwriting index.html)..."
 
 	@echo "📄 Copying Angular production build (preserving custom landing page)..."
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.js services/aoc-timer-map/ 2>/dev/null || true
@@ -373,6 +375,7 @@ prod:
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/*.map services/aoc-timer-map/ 2>/dev/null || true
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/favicon.ico services/aoc-timer-map/ 2>/dev/null || true
 	@cp services/aoc-timer-map/dev/dist/aoc-map/browser/index.html services/aoc-timer-map/map/
+	@echo "✅ Landing page preserved - Angular index.html only copied to /map/"
 
 	@echo "🐳 Building production Docker image..."
 	@docker build -t $(IMAGE_NAME):prod .
