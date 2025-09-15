@@ -56,6 +56,51 @@ services:
     profiles:
       - feature  # Only start with --profile feature
 
+  # BookStack Wiki Service
+  bookstack:
+    image: linuxserver/bookstack:latest
+    container_name: bookstack
+    ports:
+      - "8082:80"  # BookStack on port 8082
+    volumes:
+      - ./bookstack-data:/config
+      - ./bookstack-backups:/backups
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=http://localhost:8082
+      - APP_KEY=base64:df2SHp9jQo9C9GVjGZhA1BfeyGiyG0pn2IlRBzuu8W4=
+      - DB_CONNECTION=mysql
+      - DB_HOST=bookstack-db
+      - DB_PORT=3306
+      - DB_USERNAME=bookstack
+      - DB_PASSWORD=bookstack_password
+      - DB_DATABASE=bookstack
+    depends_on:
+      - bookstack-db
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+    profiles:
+      - bookstack  # Only start with --profile bookstack
+
+  # BookStack Database
+  bookstack-db:
+    image: mysql:8.0
+    container_name: bookstack-db
+    volumes:
+      - ./bookstack-db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=bookstack_password
+    networks:
+      - aoctimermap-network
+    restart: unless-stopped
+    profiles:
+      - bookstack
+
 networks:
   aoctimermap-network:
     driver: bridge

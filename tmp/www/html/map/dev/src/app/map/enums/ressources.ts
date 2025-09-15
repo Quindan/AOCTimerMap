@@ -1,0 +1,110 @@
+
+type ResourceCategory = Record<string, string>;
+
+export const TIMERS_BY_CATEGORIES: Record<string, number> = {
+  wood: 4,
+  plant: 4,
+  gem: 2,
+  stone: 1,
+  metal: 2,
+  hunting: 1
+} as const;
+
+
+export const RESOURCE_CATEGORIES: Record<string, ResourceCategory> = {
+    wood: {
+      acacia: '/assets/icons/ressources/acacia.webp', 
+      ash: '/assets/icons/ressources/ash.webp',      
+      braidwood: '/assets/icons/ressources/braidwood.webp',
+      date_palm: '/assets/icons/ressources/date_palm.webp',
+      eastern_hemlock: '/assets/icons/ressources/eastern_hemlock.webp',
+      oak: '/assets/icons/ressources/oak.webp',
+      western_larch: '/assets/icons/ressources/western_larch.webp',
+      weeping_willow: '/assets/icons/ressources/weeping_willow.webp',
+    },
+    stone: {
+      basalt: '/assets/icons/ressources/basalt.webp',      
+      gneiss: '/assets/icons/ressources/gneiss.webp',
+      granite: '/assets/icons/ressources/granite.webp',
+      wyrdstone: '/assets/icons/ressources/wyrdstone.webp',
+      slate: '/assets/icons/ressources/slate.webp',      
+      limestone: '/assets/icons/ressources/limestone.webp',
+      obsidian: '/assets/icons/ressources/obsidian.webp',
+      quartz: '/assets/icons/ressources/quartz.webp',
+      sandstone: '/assets/icons/ressources/sandstone.webp'
+    },
+    plant: {
+      agave: '/assets/icons/ressources/agave.webp',
+      blood_boiled_spiritbloom: '/assets/icons/ressources/blood_boiled_spiritbloom.webp',
+      daffodil: '/assets/icons/ressources/daffodil.webp',
+      flax: '/assets/icons/ressources/flax.webp',
+      giant_bluebell: '/assets/icons/ressources/giant_bluebell.webp',
+      gloomy_pross_petals: '/assets/icons/ressources/gloomy_pross_petals.webp',
+      grave_lily: '/assets/icons/ressources/grave_lily.webp',
+      moonbell: '/assets/icons/ressources/moonbell.webp',
+      paintbrush: '/assets/icons/ressources/paintbrush.webp',
+      poppy: '/assets/icons/ressources/poppy.webp',
+      saguaro_cactus: '/assets/icons/ressources/saguaro_cactus.webp',
+      snowdrop: '/assets/icons/ressources/snowdrop.webp',
+      spiritbloom: '/assets/icons/ressources/spiritbloom.webp',
+      spindlevine: '/assets/icons/ressources/spindlevine.webp'
+    },
+    metal: {
+      copper: '/assets/icons/ressources/copper.webp',
+      gold: '/assets/icons/ressources/gold.webp',  
+      iron: '/assets/icons/ressources/iron.webp',  
+      rividium: '/assets/icons/ressources/rividium.webp',
+      silver: '/assets/icons/ressources/silver.webp',
+      stellarium: '/assets/icons/ressources/stellarium.webp',
+      tin: '/assets/icons/ressources/tin.webp',
+      zinc: '/assets/icons/ressources/zinc.webp',
+    },
+    gem: {
+      diamond: '/assets/icons/ressources/diamond.webp',
+      emerald: '/assets/icons/ressources/emerald.webp',
+      halcyonite: '/assets/icons/ressources/halcyonite.webp',
+      lumadon: '/assets/icons/ressources/lumadon.webp',
+      night_opal: '/assets/icons/ressources/night_opal.webp',
+      opal: '/assets/icons/ressources/opal.webp',
+      ruby: '/assets/icons/ressources/ruby.webp',
+      sapphire: '/assets/icons/ressources/sapphire.webp',
+    },
+    hunting: {
+      armored_bear: '/assets/icons/ressources/armored_bear.webp',
+      armored_raptor: '/assets/icons/ressources/armored_raptor.webp',
+      bear: '/assets/icons/ressources/bear.webp',
+      bork: '/assets/icons/ressources/bork.webp',
+      bonestrider: '/assets/icons/ressources/bonestrider.webp',
+      daystrider: '/assets/icons/ressources/daystrider.webp',
+      dawnbreaker: '/assets/icons/ressources/dawnbreaker.webp',
+      deer: '/assets/icons/ressources/deer.webp',      
+      drake_of_the_canopy: '/assets/icons/ressources/drake_of_the_canopy.webp',
+      dynasty_beetle: '/assets/icons/ressources/dynasty_beetle.webp',
+      ebon_omen: '/assets/icons/ressources/ebon_omen.webp',
+      flailrunner: '/assets/icons/ressources/flailrunner.webp',
+      glimmering_geode: '/assets/icons/ressources/glimmering_geode.webp',
+      hippo: '/assets/icons/ressources/hippo.webp',
+      horse: '/assets/icons/ressources/horse.webp',
+      midnight_mare: '/assets/icons/ressources/midnight_mare.webp',
+      obsidian_stallion: '/assets/icons/ressources/obsidian_stallion.webp',
+      pallas_cat: '/assets/icons/ressources/pallas_cat.webp',
+      plumed_haleberder: '/assets/icons/ressources/plumed_haleberder.webp',
+      protectors_pride: '/assets/icons/ressources/protectors_pride.webp',
+      raptor: '/assets/icons/ressources/raptor.webp',
+      riverdancer_otter: '/assets/icons/ressources/riverdancer_otter.webp',
+      riverlands_kirin: '/assets/icons/ressources/riverlands_kirin.webp',
+      runic_steed: '/assets/icons/ressources/runic_steed.webp',
+      sandsquall_croc: '/assets/icons/ressources/sandsquall_croc.webp',
+      shatterclaw: '/assets/icons/ressources/shatterclaw.webp',
+      shell_of_the_ancients: '/assets/icons/ressources/shell_of_the_ancients.webp',
+      skinwalker: '/assets/icons/ressources/skinwalker.webp',
+      terror_bird: '/assets/icons/ressources/terror_bird.webp',
+      tidesnapper: '/assets/icons/ressources/tidesnapper.webp',
+      wolf: '/assets/icons/ressources/wolf.webp',
+      wyrmling: '/assets/icons/ressources/wyrmling.webp'
+    }
+  } as const;
+  
+  export type ResourceType = keyof typeof RESOURCE_CATEGORIES[keyof typeof RESOURCE_CATEGORIES];
+
+  

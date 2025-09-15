@@ -5,6 +5,11 @@
 db/
 docker/nginx/.htpasswd
 
+# BookStack data and backups
+bookstack-data/
+bookstack-db/
+bookstack-backups/
+
 # IDE and editor files
 .vscode/
 .idea/
@@ -31,3 +36,4 @@ node_modules/
 *.tmp
 *.temp
 
+invicta_deploy_key*

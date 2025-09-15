@@ -1,0 +1,20 @@
+version: '3.8'
+
+# Production override - uses port 80 instead of 9090
+services:
+  invictaweb:
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - ENVIRONMENT=production
+      - DB_PATH=/var/www/db/mydb.sqlite
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_MAX_EXECUTION_TIME=300
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

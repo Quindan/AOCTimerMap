@@ -1,157 +1,231 @@
-# AOCTimerMap
+# InvictaWeb - Guild Hub
 
-### Features : 
-- permet de marquer les boss et les ressources (et ce que vous voulez) sur la carte, vous pouvez mettre un timer et le respawn time, et le type
-- Tout les pins sont mis en base de donnée, et tout le monde récupere tout les marqueurs et tout les timers ( mis à jour toutes minutes en direct)
-sous forme de pin de loin, et de petit carré avec le timer quand c'est zoom; avec le pti icon
-- on peut clic pour R (reset le timer), ou M (annoncé que c'est missing)
-marqueur rouge pendant le temps où c'est en cooldown. Si tu récupere la resource ou voit le boss mourir, tu clic et reset le timer, il sera rouge pendant 30m ( ou le temps du cooldown réglé) puis reviendra à bleu. (passe jaune pendant le temps de cd si il est marqué missing)
-- si l'icone du type existe dans le project, ça met un pti icon, (liste des icons pour l'instant: https://github.com/Quindan/AOCTimerMap/tree/main/src/icons)
+A comprehensive platform for Ashes of Creation guild management, featuring an interactive resource timer map, guild sheets, vendor optimization tools, and more.
 
-### Utilisation : 
-- Je coupe un wipping willow legendaire, je vais sur la map, je zoom bien et je clic dessus, je tape 'wipping legendaire' ou peu importe, tape le temps (je crois que c'est 4heure, alors tu tape '4h'), et le type (j'ai mis 'ww' pour wipping willow,mais il y a 'wood' qui existe si tu veux pas te prendre la tete).
-- Le point apparait sur la carte pour tout le monde dans la minute, reste rouge pendant 4h.
-4h après, le pin repasse bleu. Je reprend le willow. Je clic sur le pin, tape 'r' pour reset. Il redevient rouge pour tout le monde. si les gens zoom, ils voyent le timer précis.
+## 🏗️ **Platform Architecture**
 
+InvictaWeb combines multiple guild services in a single, easy-to-deploy platform:
 
-# Requirements
+- **🌐 Main Portal**: Landing page and navigation hub  
+- **🗺️ AOC Timer Map**: Interactive resource map with 230+ named mob timers
+- **👥 Guild Sheets**: Member management and raid planning *(coming soon)*
+- **💰 Vendor Optimizer**: Trade route and pricing tools *(planned)*
+- **📚 API Documentation**: Complete API reference
 
-## System Requirements
+### **Service Routing**
+- `/` → Main portal (landing page)
+- `/map/` → AOC Timer Map  
+- `/guild/` → Guild management *(beta)*
+- `/vendor/` → Vendor tools *(planned)*
+- `/api-docs/` → API documentation
 
-Before deploying AOCTimerMap, ensure your server has the following dependencies installed:
+## 🚀 **Quick Start**
 
-### Essential Tools
-- **Git** - Version control (usually pre-installed)
-- **Make** - Build automation tool
-- **Build-essential** - Compilation tools (gcc, g++, etc.)
-
-### Container Platform
-- **Docker** - Container runtime and engine
-
-### Web Server Tools  
-- **Apache2-utils** - Provides `htpasswd` for basic authentication
-
-## Installation Commands
-
-### Ubuntu/Debian Server Setup
+### **Full Platform Deployment (Recommended)**
 
 ```bash
-# Update system packages
-sudo apt update && sudo apt upgrade -y
-
-# Install essential build tools and make
-sudo apt install -y make build-essential
-
-# Install Docker (official script)
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install apache2-utils for basic auth
-sudo apt install -y apache2-utils
-
-# Verify installations
-make --version
-docker --version
-htpasswd
-```
-
-### Alternative: One-Line Installation
-
-```bash
-# Complete server setup in one command
-sudo apt update -y && sudo apt install -y make build-essential apache2-utils && curl -fsSL https://get.docker.com | sh
-```
-
-## Deployment
-
-### Quick Deployment
-
-```bash
-# Clone the project
-git clone https://github.com/Quindan/AOCTimerMap.git
-cd AOCTimerMap
-
-# Install dependencies and deploy
-make install && make build && make create && make run
-```
-
-### Manual Step-by-Step
-
-```bash
-# 1. Install local dependencies (creates db/, sets permissions)
-make install
-
-# 2. Build Docker image
-make build
-
-# 3. Initialize database with proper permissions
+# 1. Initialize database and directories
 make create
 
-# 4. Run the application
+# 2. Build the platform
+make hub-build
+
+# 3. Start all services
+make start
+
+# 4. Access services
+# Portal: http://localhost:9090/
+# Map: http://localhost:9090/map/
+# API Docs: http://localhost:9090/api-docs/
+# Health: http://localhost:9090/health
+```
+
+**Default Login**: `invicta` / `password`
+
+### **Individual Service Development**
+
+```bash
+# Start just the timer map (legacy mode)
 make run
+
+# Start with Docker Compose profiles
+make compose-dev    # Development environment
+make compose-feature # Feature testing
 ```
 
-### Set Authentication Password
+## 📁 **Project Structure**
 
-The application uses HTTP Basic Authentication with nginx. You need to create a `.htpasswd` file:
+```
+InvictaWeb/
+├── services/                 # Individual applications
+│   ├── main-portal/          # Landing page & navigation
+│   ├── aoc-timer-map/        # Timer map (your current project)
+│   ├── guild-sheets/         # Guild management (planned)
+│   └── vendor-trash/         # Vendor optimization (planned)
+├── shared/                   # Shared components
+│   ├── auth/                 # Common authentication
+│   ├── ui-components/        # Shared Angular components
+│   ├── database/             # Database utilities
+│   └── utils/                # Common utilities
+├── infrastructure/           # Deployment & operations
+│   ├── nginx/                # Reverse proxy configs
+│   ├── supervisor/           # Process management
+│   └── ssl/                  # SSL certificates
+├── deployment/               # Environment configs
+├── src/                      # Built application files
+└── docs/                     # Documentation
+```
 
+## 🎯 **AOC Timer Map Features**
+
+### **Interactive Resource Map**
+- Click-to-place resource markers with respawn timers
+- Real-time updates shared across all guild members
+- Visual timer states: blue (available), red (cooldown), yellow (missing)
+- Custom resource types with icons
+- Export/import marker configurations
+
+### **Named Mob Timers** 
+- Track 230+ named mobs from Ashes Codex API
+- Automatic respawn time calculations
+- Kill tracking and timer management
+- Search and filter by mob name/location
+- Notes and guild coordination features
+
+### **Controls**
+- **R**: Reset timer (when you kill/harvest)
+- **M**: Mark as missing (when someone else got it)
+- **Click**: View details and manage timers
+
+## 🔧 **Development Commands**
+
+### **Platform Commands**
 ```bash
-# Create/update user with username and password
-make addUser USER=invicta ARGS="-c"
-
-# Or manually create .htpasswd:
-htpasswd -cb docker/nginx/.htpasswd invicta invicta
-
-# After creating/updating auth, restart the container:
-make restart
+make hub-build         # Build platform container
+make start             # Start all services (alias for hub-start)
+make logs              # View logs (alias for hub-logs)  
+make stop              # Stop all services (alias for hub-stop)
 ```
 
-**Default credentials:** `invicta:invicta`
-
-## Verification
-
-After deployment, verify the application is running:
-
+### **Database Management**
 ```bash
-# Check container status
-docker ps
-
-# Test web access (should return 401 - authentication required)
-curl -I http://your-server-ip/
-
-# Check application logs
-make logs
-
-# Get detailed error logs (Docker + Nginx errors and access logs)
-make error-logs
+make create            # Initialize database
+make import-named-mobs # Import named mobs data
+make fetch-named-mobs  # Update named mobs from API
 ```
 
-Your application will be accessible at `http://your-server-ip/` with basic authentication.
-
-# Database Management
-
-## Initialize Database
-
-If you encounter database errors like "unable to open database file", run:
-
+### **Legacy Single Service**
 ```bash
-# Initialize database with proper permissions
-make create
-
-# Restart container to apply changes
-make restart
+make install           # Install dependencies
+make build            # Build containers
+make run              # Start timer map only
+make logs             # View container logs
+make error-logs       # Detailed error debugging
 ```
 
-This command:
-- Creates the `db/` directory if missing
-- Creates `mydb.sqlite` file
-- Sets proper permissions for www-data user
-- Ensures the container can access the database
+### **Docker Compose Profiles**
+```bash
+make compose-dev       # Development environment (port 8080)
+make compose-feature   # Feature testing (port 8081)
+make deploy-branch     # Deploy specific branch
+```
 
-## Known Issues
+## 🔐 **Authentication**
 
-- **Database Path**: The SQLite database must be accessible at `/var/www/db/mydb.sqlite` inside the container
-- **Permissions**: Database files need `www-data:www-data` ownership and `ug+rw` permissions
-- **Pin Creation**: Cancel pin creation doesn't work properly
-- **Pin Colors**: Delay for pin getting the right color, will move to icon instead of CSS rotation
-- **Icons**: Missing icons - consider taking directly from codex instead of copying
+All services use HTTP Basic Authentication:
+
+- **Username**: `invicta`
+- **Password**: `invicta` (default)
+
+To change the password:
+```bash
+# Generate new .htpasswd
+htpasswd -c .htpasswd invicta
+
+# Or update in container
+make addUser
+```
+
+## 🗄️ **Database**
+
+- **Type**: SQLite
+- **Location**: `./db/mydb.sqlite`
+- **Backup**: Automatic with Docker volumes
+- **Schema**: Auto-migration on startup
+
+### **Tables**
+- `markers`: Resource markers and timers
+- `named_mobs`: Named mob timer entries  
+- `named_mobs_static`: Static mob data from Ashes Codex
+
+## 🌐 **API Endpoints**
+
+### **Resource Markers**
+- `GET /api.php` - Get all markers
+- `POST /api.php` - Create marker
+- `PUT /api.php` - Update marker
+- `DELETE /api.php` - Remove marker
+
+### **Named Mobs**
+- `GET /named_mobs_api.php` - Get timers
+- `POST /named_mobs_api.php` - Create timer
+- `PUT /named_mobs_api.php` - Update timer
+- `DELETE /named_mobs_api.php` - Remove timer
+- `POST /named_mobs_api.php/import` - Import mob data
+
+### **Health & Status**
+- `GET /health` - Service health check
+- Returns JSON with service status and timestamp
+
+## 📊 **Monitoring**
+
+- **Health Checks**: `/health` endpoint
+- **Logs**: Nginx + PHP logs via Docker
+- **Metrics**: Container resource usage
+- **Uptime**: Supervisor process management
+
+## 🚧 **Roadmap**
+
+### **Phase 1: Current (Completed)**
+- ✅ Monolith architecture setup
+- ✅ Main portal with service navigation
+- ✅ AOC Timer Map integration
+- ✅ Named mobs feature (230+ mobs)
+- ✅ API documentation
+- ✅ Docker deployment
+
+### **Phase 2: Guild Management (In Progress)**
+- 🚧 Guild member roster
+- 🚧 Raid planning and signups
+- 🚧 Resource contribution tracking
+- 🚧 Performance analytics
+
+### **Phase 3: Vendor Optimization (Planned)**
+- 📋 Real-time vendor pricing
+- 📋 Trade route calculation
+- 📋 Profit optimization tools
+- 📋 Market trend analysis
+
+### **Phase 4: Enhanced Features (Future)**
+- 📋 Mobile app
+- 📋 Discord integration
+- 📋 Advanced analytics
+- 📋 Multi-guild support
+
+## 🤝 **Contributing**
+
+This is built for the Invicta guild, but contributions are welcome:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📜 **License**
+
+Built for the Ashes of Creation community. Use freely for your guild's needs.
+
+---
+
+**Made with ⚔️ by the Invicta Guild for the AOC community**

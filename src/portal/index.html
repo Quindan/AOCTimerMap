@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvictaWeb - Guild Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f9fafb;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0 6rem;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: #e5e7eb;
+            margin-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        .services {
+            padding: 5rem 0;
+        }
+        
+        .services h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #1f2937;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-card.active {
+            border-color: #10b981;
+        }
+        
+        .service-card.development {
+            border-color: #f59e0b;
+        }
+        
+        .service-card.planned {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-card.active .service-icon {
+            color: #10b981;
+        }
+        
+        .service-card.development .service-icon {
+            color: #f59e0b;
+        }
+        
+        .service-card.planned .service-icon {
+            color: #6b7280;
+        }
+        
+        .service-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .service-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .service-btn {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .service-btn.active {
+            background: #10b981;
+        }
+        
+        .service-btn.development {
+            background: #f59e0b;
+        }
+        
+        .service-btn.planned {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        
+        .service-btn:hover:not(.planned) {
+            transform: translateY(-2px);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .service-card {
+            position: relative;
+        }
+        
+        .status-active {
+            background: #10b981;
+        }
+        
+        .status-development {
+            background: #f59e0b;
+        }
+        
+        .status-planned {
+            background: #6b7280;
+        }
+        
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        .footer p {
+            color: #9ca3af;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">
+                <i class="fas fa-shield-alt" style="color: #fbbf24;"></i>
+            </div>
+            <h1>InvictaWeb</h1>
+            <p>Guild Hub for Ashes of Creation</p>
+            <p style="font-size: 1rem; max-width: 600px; margin: 0 auto;">
+                Your comprehensive toolkit for guild management, resource tracking, and strategic planning.
+                Built by adventurers, for adventurers.
+            </p>
+        </div>
+    </header>
+
+    <!-- Services Section -->
+    <main class="services">
+        <div class="container">
+            <h2>Guild Services</h2>
+            <div class="services-grid">
+                
+                <!-- AOC Timer Map -->
+                <div class="service-card active">
+                    <div class="status-badge status-active">Live</div>
+                    <div class="service-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3 class="service-title">AOC Timer Map</h3>
+                        <p class="service-description">
+                            Interactive resource map with named mob timers. Track spawns, resources, 
+                            and optimize your farming routes with 230+ named mobs.
+                        </p>
+                    </div>
+                    <a href="/map/" class="service-btn active">
+                        Launch Map <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Guild Sheets -->
+                <div class="service-card development">
+                    <div class="status-badge status-development">Beta</div>
+                    <div class="service-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3 class="service-title">Guild Sheets</h3>
+                        <p class="service-description">
+                            Comprehensive guild management. Member rosters, raid planning, 
+                            resource tracking, and performance analytics.
+                        </p>
+                    </div>
+                    <a href="/guild/" class="service-btn development">
+                        Preview Beta <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Vendor Trash Optimizer -->
+                <div class="service-card planned">
+                    <div class="status-badge status-planned">Coming Soon</div>
+                    <div class="service-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3 class="service-title">Vendor Trash Optimizer</h3>
+                        <p class="service-description">
+                            Maximize your profits with real-time vendor pricing data. 
+                            Calculate optimal trade routes and item values.
+                        </p>
+                    </div>
+                    <button class="service-btn planned" disabled>
+                        Coming Soon
+                    </button>
+                </div>
+
+                <!-- API Documentation -->
+                <div class="service-card active">
+                    <div class="status-badge status-active">Live</div>
+                    <div class="service-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3 class="service-title">API Documentation</h3>
+                        <p class="service-description">
+                            Complete API documentation for all InvictaWeb services. 
+                            Integration guides and endpoint references.
+                        </p>
+                    </div>
+                    <a href="/api-docs/" class="service-btn active">
+                        View Docs <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 InvictaWeb. Made for adventurers, by adventurers.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Add some basic interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check URL parameters for service redirects
+            const urlParams = new URLSearchParams(window.location.search);
+            const service = urlParams.get('service');
+            
+            if (service) {
+                const comingSoonMessage = {
+                    'guild': 'Guild Sheets is currently in development. Coming soon!',
+                    'vendor': 'Vendor Trash Optimizer is in planning phase. Coming soon!'
+                };
+                
+                if (comingSoonMessage[service]) {
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #f59e0b;
+                        color: white;
+                        padding: 1rem 1.5rem;
+                        border-radius: 0.5rem;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        z-index: 1000;
+                        animation: slideIn 0.3s ease-out;
+                    `;
+                    notification.innerHTML = `
+                        <i class="fas fa-info-circle"></i> ${comingSoonMessage[service]}
+                        <button onclick="this.parentElement.remove()" style="
+                            background: none; 
+                            border: none; 
+                            color: white; 
+                            margin-left: 10px; 
+                            cursor: pointer;
+                            font-size: 1.2rem;
+                        ">&times;</button>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        if (notification.parentElement) {
+                            notification.remove();
+                        }
+                    }, 5000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

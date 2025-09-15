@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup
+.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup bookstack-up bookstack-down bookstack-backup bookstack-restore
 
 .DEFAULT_GOAL := help
 
@@ -41,6 +41,12 @@ help:
 	@echo "  prod-logs        Show production container logs"
 	@echo "  prod-status      Show production container status"
 	@echo "  prod-backup      Create production database backup"
+	@echo ""
+	@echo "BookStack Wiki Commands:"
+	@echo "  bookstack-up     Start BookStack wiki service (port 8082)"
+	@echo "  bookstack-down   Stop BookStack wiki service"
+	@echo "  bookstack-backup Create BookStack database backup"
+	@echo "  bookstack-restore FILE=backup.sql Restore BookStack database"
 
 install:
 	@echo "Installing apache2-utils (provides 'htpasswd') on the host..."
@@ -428,3 +434,40 @@ prod-backup:
 	else \
 		echo "⚠️  No database found to backup"; \
 	fi
+
+# BookStack Wiki Management
+bookstack-up:
+	@echo "📚 Starting BookStack wiki service..."
+	@mkdir -p bookstack-data bookstack-db bookstack-backups
+	@docker-compose --profile bookstack up -d
+	@echo "✅ BookStack started on http://localhost:8082"
+	@echo "📖 Default login: admin@admin.com / password"
+
+bookstack-down:
+	@echo "📚 Stopping BookStack wiki service..."
+	@docker-compose --profile bookstack down
+	@echo "✅ BookStack stopped"
+
+bookstack-backup:
+	@echo "💾 Creating BookStack database backup..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	mkdir -p bookstack-backups; \
+	docker exec bookstack-db mysqldump -u bookstack -pbookstack_password bookstack > bookstack-backups/bookstack_backup_$$TIMESTAMP.sql; \
+	echo "✅ BookStack backup created: bookstack-backups/bookstack_backup_$$TIMESTAMP.sql"; \
+	ls -la bookstack-backups/bookstack_backup_$$TIMESTAMP.sql
+
+bookstack-restore:
+	@echo "📥 Restoring BookStack database from backup..."
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ Please specify backup file: make bookstack-restore FILE=backup_file.sql"; \
+		echo "Available backups:"; \
+		ls -la bookstack-backups/; \
+		exit 1; \
+	fi
+	@if [ ! -f "bookstack-backups/$(FILE)" ]; then \
+		echo "❌ Backup file not found: bookstack-backups/$(FILE)"; \
+		exit 1; \
+	fi
+	@echo "🔄 Restoring from: bookstack-backups/$(FILE)"
+	@docker exec -i bookstack-db mysql -u bookstack -pbookstack_password bookstack < bookstack-backups/$(FILE)
+	@echo "✅ BookStack database restored successfully"

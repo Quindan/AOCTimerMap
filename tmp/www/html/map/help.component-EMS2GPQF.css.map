@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/help/help.component.scss"],
+  "sourcesContent": [".show-hide-help {\r\n    position: absolute;\r\n    bottom: 20px;\r\n    right: 10px;\r\n    z-index: 500;\r\n}"],
+  "mappings": "AAAA,CAAA,eACI,SAAA,SACA,OAAA,KACA,MAAA,KACA,QAAA",
+  "names": []
+}
