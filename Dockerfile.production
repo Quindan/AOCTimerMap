@@ -39,6 +39,9 @@ COPY --from=builder /build/app/ /var/www/html/
 COPY --from=builder /build/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /build/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Créer le fichier .htpasswd pour l'authentification
+RUN echo "admin:\$2y\$10\$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi" > /etc/nginx/.htpasswd
+
 # Créer le répertoire pour la base de données
 RUN mkdir -p /var/www/db && chown -R www-data:www-data /var/www/db
 
