@@ -7,7 +7,9 @@ services:
     container_name: aoctimermap_main_production
     ports:
       - "80:80"
-    # Pas de volume mounts - tout est dans l'image
+    volumes:
+      # Garder la base de données persistante
+      - ./db:/var/www/db
     environment:
       - BRANCH=main
       - ENVIRONMENT=production
