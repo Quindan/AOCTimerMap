@@ -9,9 +9,7 @@ services:
     container_name: aoctimermap_main_production
     ports:
       - "80:80"
-    volumes:
-      # Seulement la DB - les fichiers web sont dans l'image
-      - ./db:/var/www/db
+    # Pas de volume mounts - tout est dans l'image
     environment:
       - BRANCH=main
       - ENVIRONMENT=production
