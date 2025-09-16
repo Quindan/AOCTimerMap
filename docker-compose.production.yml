@@ -1,12 +1,12 @@
 version: '3.8'
 
 services:
-  # Main production service (multistage build)
+  # Main production service (production build)
   aoctimermap-main:
     build:
       context: .
-      dockerfile: Dockerfile.multistage
-    container_name: aoctimermap_main_multistage
+      dockerfile: Dockerfile.production
+    container_name: aoctimermap_main_production
     ports:
       - "80:80"
     volumes:
@@ -24,8 +24,8 @@ services:
   aoctimermap-dev:
     build:
       context: .
-      dockerfile: Dockerfile.multistage
-    container_name: aoctimermap_dev_multistage
+      dockerfile: Dockerfile.production
+    container_name: aoctimermap_dev_production
     ports:
       - "8080:80"
     volumes:
@@ -44,8 +44,8 @@ services:
   aoctimermap-feature:
     build:
       context: .
-      dockerfile: Dockerfile.multistage
-    container_name: aoctimermap_feature_multistage
+      dockerfile: Dockerfile.production
+    container_name: aoctimermap_feature_production
     ports:
       - "8081:80"
     volumes:
