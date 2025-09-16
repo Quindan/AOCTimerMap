@@ -3,9 +3,7 @@ version: '3.8'
 services:
   # Main production service (production build)
   aoctimermap-main:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
+    image: aoctimermap-production
     container_name: aoctimermap_main_production
     ports:
       - "80:80"
