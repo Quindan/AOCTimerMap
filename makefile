@@ -1,7 +1,7 @@
 # Makefile for AOCTimerMap
 # Default goal is "help", so "make" alone shows usage.
 
-.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup bookstack-up bookstack-down bookstack-backup bookstack-restore bookstack-prod-up bookstack-prod-down bookstack-prod-backup bookstack-prod-restore
+.PHONY: help install build run stop down update logs create addUser compose-up compose-down compose-dev compose-feature deploy-branch hub-build hub-start hub-logs hub-stop prod-start prod-stop start portal-build fetch-named-mobs import-named-mobs error-logs local dev prod prod-stop prod-logs prod-status prod-backup bookstack-up bookstack-down bookstack-backup bookstack-restore bookstack-prod-up bookstack-prod-down bookstack-prod-backup bookstack-prod-restore multistage-build multistage-up multistage-down multistage-logs multistage-test
 
 .DEFAULT_GOAL := help
 
@@ -51,6 +51,12 @@ help:
 	@echo "  bookstack-prod-down Stop BookStack production"
 	@echo "  bookstack-prod-backup Create production BookStack backup"
 	@echo "  bookstack-prod-restore FILE=backup.sql Restore production BookStack"
+	@echo ""
+	@echo "Multistage Build Commands (NEW - Recommended):"
+	@echo "  multistage-build Build Docker image with multistage approach"
+	@echo "  multistage-up    Start services with multistage build"
+	@echo "  multistage-down  Stop multistage services"
+	@echo "  multistage-test  Test the multistage build locally"
 
 install:
 	@echo "Installing apache2-utils (provides 'htpasswd') on the host..."
@@ -538,3 +544,47 @@ bookstack-prod-restore:
 	@echo "🔄 Restoring from: bookstack-backups/$(FILE)"
 	@docker exec -i bookstack-db-prod mysql -u bookstack -pbookstack_password bookstack < bookstack-backups/$(FILE)
 	@echo "✅ BookStack production database restored successfully"
+
+# Multistage Build Commands
+multistage-build:
+	@echo "🏗️  Building Docker image with multistage approach..."
+	@echo "📦 This will build all files into the image (no volume mounts for web files)"
+	docker build -f Dockerfile.multistage -t $(IMAGE_NAME)-multistage .
+	@echo "✅ Multistage build completed successfully!"
+
+multistage-up:
+	@echo "🚀 Starting services with multistage build..."
+	@echo "🛑 Stopping any existing services first..."
+	docker-compose -f docker-compose.multistage.yml down
+	@echo "🏗️  Building and starting services..."
+	docker-compose -f docker-compose.multistage.yml up -d aoctimermap-main
+	@echo "✅ Multistage services started successfully!"
+	@echo "🌐 Main application: http://localhost/"
+	@echo "📊 Check status with: make multistage-logs"
+
+multistage-down:
+	@echo "🛑 Stopping multistage services..."
+	docker-compose -f docker-compose.multistage.yml down
+	@echo "✅ Multistage services stopped"
+
+multistage-logs:
+	@echo "📋 Following multistage container logs (Ctrl+C to quit)..."
+	docker-compose -f docker-compose.multistage.yml logs -f aoctimermap-main
+
+multistage-test:
+	@echo "🧪 Testing multistage build locally..."
+	@echo "🏗️  Building multistage image..."
+	$(MAKE) multistage-build
+	@echo "🚀 Starting test container..."
+	$(MAKE) multistage-up
+	@echo "⏳ Waiting for container to start..."
+	sleep 5
+	@echo "🔍 Testing if landing page is accessible..."
+	@if curl -s -o /dev/null -w "%{http_code}" http://localhost/ | grep -q "200"; then \
+		echo "✅ Landing page is accessible!"; \
+		echo "🌐 Open http://localhost/ in your browser to test"; \
+	else \
+		echo "❌ Landing page is not accessible. Check logs with: make multistage-logs"; \
+	fi
+	@echo "📋 Container status:"
+	docker-compose -f docker-compose.multistage.yml ps
