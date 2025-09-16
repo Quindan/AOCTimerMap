@@ -10,9 +10,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      # Seulement la DB et les fichiers de config - plus de volume pour les fichiers web
+      # Seulement la DB - les fichiers web sont dans l'image
       - ./db:/var/www/db
-      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
     environment:
       - BRANCH=main
       - ENVIRONMENT=production
