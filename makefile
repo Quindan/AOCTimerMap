@@ -94,13 +94,41 @@ down:
 	docker rm $(CONTAINER_NAME) || true
 
 update:
-	@echo "Pulling latest code from git..."
-	git pull
-	@echo "Stopping + removing old container..."
-	$(MAKE) stop
-	$(MAKE) down
-	@echo "Launching new container with updated code..."
-	$(MAKE) run
+	@echo "🚀 Starting comprehensive production update..."
+	@echo "📅 Creating timestamp for backup..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	echo "Update timestamp: $$TIMESTAMP"
+
+	@echo "💾 Creating database backup before update..."
+	@TIMESTAMP=$$(date +"%Y%m%d_%H%M%S"); \
+	mkdir -p backups; \
+	if [ -f db/mydb.sqlite ]; then \
+		cp db/mydb.sqlite backups/mydb_backup_$$TIMESTAMP.sqlite; \
+		echo "✅ Database backed up to: backups/mydb_backup_$$TIMESTAMP.sqlite"; \
+	else \
+		echo "⚠️  No existing database found to backup"; \
+	fi
+
+	@echo "📥 Pulling latest code from git..."
+	git pull origin main
+
+	@echo "🛑 Stopping all services..."
+	$(MAKE) compose-down
+
+	@echo "🧹 Cleaning Docker cache and rebuilding image..."
+	docker system prune -f
+	docker build --no-cache -t $(IMAGE_NAME) .
+
+	@echo "🚀 Starting updated services..."
+	$(MAKE) compose-up
+
+	@echo "📊 Verifying deployment status..."
+	$(MAKE) prod-status
+
+	@echo "✅ Production update completed successfully!"
+	@echo "🌐 Services available at:"
+	@echo "   - Main application: http://84.247.141.193/"
+	@echo "   - BookStack wiki: http://84.247.141.193:8083"
 
 restart:
 		$(MAKE) stop
