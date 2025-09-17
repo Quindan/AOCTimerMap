@@ -8,9 +8,9 @@ services:
       - "9090:80"
     volumes:
       # Database persistence
-      - ./data/database:/app/database
-      # Backup storage
-      - ./data/backups:/app/backups
+      - ./data/database:/app/database:Z
+      # Backup storage  
+      - ./data/backups:/app/backups:Z
       # Configuration
       - ./.htpasswd:/app/.htpasswd:ro
     environment:

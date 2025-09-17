@@ -19,15 +19,15 @@ class CoordinateTriangulator:
         self.reference_points = []
         
     def load_reference_points(self) -> List[Dict[str, Any]]:
-        """Load the 3 reference markers and their corresponding named mobs."""
+        """Load ALL reference markers and their corresponding named mobs."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        # Get reference markers
+        # Get ALL reference markers (both "REF name" and "name REF" formats)
         cursor.execute("""
             SELECT id, label, lat, lng, type, rarity 
             FROM markers 
-            WHERE label LIKE 'REF %' 
+            WHERE label LIKE 'REF %' OR label LIKE '% REF'
             ORDER BY id
         """)
         ref_markers = cursor.fetchall()
@@ -37,8 +37,18 @@ class CoordinateTriangulator:
         for marker in ref_markers:
             marker_id, label, map_lat, map_lng, marker_type, rarity = marker
             
-            # Extract named mob name from label (e.g., "REF worwig" -> "wormwig")
-            mob_name_hint = label.replace('REF ', '').lower().strip()
+            # Extract named mob name from label (handle both "REF name" and "name REF" formats)
+            mob_name_hint = label.replace('REF ', '').replace(' REF', '').lower().strip()
+            
+            # Handle special cases for better matching
+            if 'big brother' in mob_name_hint:
+                mob_name_hint = 'big brother'
+            elif 'hornhexer' in mob_name_hint:
+                mob_name_hint = 'hornhexer'
+            elif "tawl'bura" in mob_name_hint or 'tawlbura' in mob_name_hint:
+                mob_name_hint = "tawl'bura"
+            elif 'blisterpyre' in mob_name_hint:
+                mob_name_hint = 'blisterpyre'
             
             # Find corresponding named mob
             cursor.execute("""
@@ -298,7 +308,7 @@ class CoordinateTriangulator:
         print(f"📊 Transformation report saved to: {output_file}")
 
 def main():
-    db_path = 'db/mydb.sqlite'
+    db_path = 'data/database/db/mydb.sqlite'
     
     if not os.path.exists(db_path):
         print(f"❌ Database not found: {db_path}")

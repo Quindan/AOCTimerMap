@@ -82,8 +82,8 @@ class TestSuite:
         print("\n📁 Tests des fichiers statiques:")
         
         # Test des fichiers JS et CSS via /map/
-        js_files = ["main-PFWT2COM.js", "polyfills-Q763KACN.js", "chunk-ZHYZGWJY.js"]
-        css_files = ["styles-XXTNYWA7.css"]
+        js_files = ["main-T3EQFCJX.js", "polyfills-Q763KACN.js", "chunk-ZHYZGWJY.js"]
+        css_files = ["styles-GUDYXLDC.css"]
         
         for js_file in js_files:
             self.run_curl_test(f"JS via /map/: {js_file}", f"{self.base_url}/map/{js_file}", 200, False)
@@ -117,7 +117,7 @@ class TestSuite:
         
         # Test contenu Angular
         self.run_content_test("Angular app-root", f"{self.base_url}/map/", "<app-root>", True)
-        self.run_content_test("Scripts JS chargés", f"{self.base_url}/map/", "main-PFWT2COM.js", True)
+        self.run_content_test("Scripts JS chargés", f"{self.base_url}/map/", "main-T3EQFCJX.js", True)
     
     def test_authentication(self):
         """Test l'authentification"""

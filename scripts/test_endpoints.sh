@@ -31,9 +31,9 @@ test_endpoint() {
 
 # Tests des fichiers statiques (sans auth)
 echo -e "\n📁 Fichiers statiques:"
-test_endpoint "JavaScript principal" "$BASE_URL/map/main-PFWT2COM.js" "200" "false"
-test_endpoint "CSS principal" "$BASE_URL/map/styles-XXTNYWA7.css" "200" "false" 
-test_endpoint "Polyfills" "$BASE_URL/map/polyfills-Q763KACN.js" "200" "false"
+test_endpoint "JavaScript principal" "$BASE_URL/main-T3EQFCJX.js" "200" "false"
+test_endpoint "CSS principal" "$BASE_URL/styles-GUDYXLDC.css" "200" "false" 
+test_endpoint "Polyfills" "$BASE_URL/polyfills-Q763KACN.js" "200" "false"
 
 # Tests des APIs (avec auth)
 echo -e "\n🔌 APIs:"
@@ -52,7 +52,7 @@ test_endpoint "Sans auth (doit échouer)" "$BASE_URL/api.php" "401" "false"
 # Test de contenu spécifique
 echo -e "\n📊 Contenu:"
 echo -n "🎯 Points de référence: "
-ref_count=$(curl -s -u "$AUTH" "$BASE_URL/api.php" | grep -c "REF ")
+ref_count=$(curl -s -u "$AUTH" "$BASE_URL/api.php" | jq '[.[] | select(.label | test("REF"; "i"))] | length' 2>/dev/null || echo "0")
 if [ "$ref_count" -ge "3" ]; then
     echo "✅ $ref_count points trouvés"
 else
@@ -60,7 +60,7 @@ else
 fi
 
 echo -n "🏆 Named mobs triangulés: "
-triangulated_count=$(curl -s -u "$AUTH" "$BASE_URL/named_mobs_api.php" | grep -c '"map_lat":')
+triangulated_count=$(curl -s -u "$AUTH" "$BASE_URL/named_mobs_api.php" | jq '[.data[] | select(.map_lat != null)] | length' 2>/dev/null || echo "0")
 if [ "$triangulated_count" -ge "200" ]; then
     echo "✅ $triangulated_count mobs triangulés"
 else

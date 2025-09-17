@@ -92,7 +92,8 @@ try {
             if (strpos($path, '/named-mobs/timer') !== false) {
                 handleUpdateTimer($db);
             } else {
-                handleUpdateNamedMob($db);
+                // Default PUT action - update visibility
+                handleUpdateVisibility($db);
             }
             break;
             
@@ -123,9 +124,9 @@ function handleGetAllNamedMobs($db) {
     
     $sql = "SELECT nm.id, nm.name, nm.slug, nm.level, nm.level_range, nm.respawn_time, nm.respawn_minutes, nm.codex_url, 
                    nm.location_x, nm.location_y, nm.location_z, nm.type, 
-                   nm.map_lat, nm.map_lng, nm.coordinate_source,
+                   nm.map_lat, nm.map_lng, nm.coordinate_source, nm.is_hidden,
                    nm.created_at, nm.updated_at 
-            FROM named_mobs nm WHERE 1=1";
+            FROM named_mobs nm WHERE nm.is_hidden = 0";
     $params = [];
     
     if ($level) {
@@ -439,5 +440,82 @@ function handleDeleteTimer($db) {
         'success' => $result,
         'message' => $result ? 'Timer deleted successfully' : 'Failed to delete timer'
     ]);
+}
+
+function handleCreateNamedMob($db) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $requiredFields = ['name', 'level', 'respawn_time', 'respawn_minutes'];
+    foreach ($requiredFields as $field) {
+        if (!isset($input[$field])) {
+            http_response_code(400);
+            echo json_encode(['error' => "Field '$field' is required"]);
+            return;
+        }
+    }
+    
+    $stmt = $db->prepare("
+        INSERT INTO named_mobs 
+        (name, slug, level, level_range, respawn_time, respawn_minutes, codex_url, location_x, location_y, location_z, type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    
+    $result = $stmt->execute([
+        $input['name'],
+        $input['slug'] ?? null,
+        $input['level'],
+        $input['level_range'] ?? null,
+        $input['respawn_time'],
+        $input['respawn_minutes'],
+        $input['codex_url'] ?? null,
+        $input['location_x'] ?? null,
+        $input['location_y'] ?? null,
+        $input['location_z'] ?? null,
+        'named_mob'
+    ]);
+    
+    if ($result) {
+        echo json_encode([
+            'success' => true,
+            'mob_id' => $db->lastInsertId(),
+            'message' => 'Named mob created successfully'
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to create named mob'
+        ]);
+    }
+}
+
+function handleUpdateVisibility($db) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    
+    $mobId = $input['mob_id'] ?? null;
+    $isHidden = $input['is_hidden'] ?? null;
+    
+    if (!$mobId || $isHidden === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Mob ID and is_hidden status are required']);
+        return;
+    }
+    
+    $stmt = $db->prepare("UPDATE named_mobs SET is_hidden = ? WHERE id = ?");
+    $result = $stmt->execute([$isHidden, $mobId]);
+    
+    if ($result) {
+        $status = $isHidden ? 'hidden' : 'shown';
+        echo json_encode([
+            'success' => true,
+            'message' => "Named mob $status successfully"
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to update mob visibility'
+        ]);
+    }
 }
 ?>
