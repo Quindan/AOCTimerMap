@@ -1,0 +1,102 @@
+<h2 mat-dialog-title class="text-2xl font-semibold text-gray-800 mb-4">
+  @if (data) {
+    <div class="flex justify-between">
+      <div>Editer un marker</div>
+      <mat-icon (click)="removeMarker()" class="text-red-500 cursor-pointer">delete</mat-icon>
+    </div>
+    
+
+  } @else {
+    Ajouter un marqueur
+  }    
+</h2>
+  
+<mat-dialog-content class="space-y-6" >
+  <form [formGroup]="markerForm" class="marker-form">
+    <!-- Champ Label -->
+    <mat-form-field class="w-full">
+      <mat-label class="text-gray-700">Label</mat-label>
+      <input matInput formControlName="label" placeholder="label" />
+    </mat-form-field>
+
+    <!-- Champ Coord -->
+    <!--<mat-form-field class="w-full">
+      <mat-label class="text-gray-700">Coordonnées en jeu</mat-label>
+      <input matInput formControlName="coord" placeholder="coord" />
+    </mat-form-field>-->
+
+    <p-select [options]="ressourceImages" formControlName="type" [filter]="true" [showClear]="true" display="chip" placeholder="Choisis un type de ressource" class="w-full">
+      <ng-template #selectedItem let-selectedOption>
+          <div class="flex items-center gap-2">
+              <img [src]="'assets/icons/ressources/'+selectedOption+'.webp'" style="width: 18px" />
+              <div class="text-blac">{{ selectedOption.replaceAll('_', ' ') }}</div>
+          </div>
+      </ng-template>
+      <ng-template let-type #item>
+          <div class="flex items-center gap-2">
+              <img [src]="'assets/icons/ressources/'+type+'.webp'" style="width: 18px" />
+              <div>{{ type.replaceAll('_', ' ') }}</div>
+          </div>
+      </ng-template>
+    </p-select>
+
+    <!-- Select pour la rareté -->
+    <mat-form-field class="w-full">
+      <mat-label class="text-gray-700">Rareté</mat-label>
+      <mat-select formControlName="rarity">
+        @for (rarity of rarities; track rarity) {
+          <mat-option [value]="rarity">{{ rarity }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (data) {
+      <div class="border border-blue-500 rounded-lg p-4 bg-blue-50 flex items-center space-x-4 mb-2">
+        <mat-slide-toggle formControlName="updateTimer">Click to reset timer</mat-slide-toggle>
+      </div>
+    }    
+
+    <!-- Select pour le timer -->
+    <mat-form-field class="w-full">
+      <mat-label class="text-gray-700">Durée (en heures)</mat-label>
+      <mat-select formControlName="timer">
+        @for (hour of [1, 2, 3, 4, 5, 6]; track hour) {
+            <mat-option
+              [value]="hour"
+              >
+              {{ hour }} heure{{ hour > 1 ? 's' : '' }}
+            </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+
+  
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="pt-4">
+  <!-- Bouton Annuler -->
+  <button
+    mat-raised-button
+    color="warn"
+    (click)="cancelForm()"
+  >
+    Annuler
+  </button>
+
+  <!-- Bouton Ajouter -->
+  <button      
+    mat-flat-button
+    color="primary"
+    class="rounded-md"
+    (click)="submitForm()"
+    [disabled]="!markerForm.valid || !hasFormChanged()"
+  >
+    @if (data) {
+      Update
+    } @else {
+      Ajouter
+    }
+  </button>
+</mat-dialog-actions>
+  

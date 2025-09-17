@@ -1,106 +1,31 @@
 version: '3.8'
 
 services:
-  # Main production service (main branch)
-  aoctimermap-main:
+  timer-map:
     build: .
-    container_name: aoctimermap_main
+    container_name: aoc-timer-map
     ports:
-      - "80:80"
+      - "9090:80"
     volumes:
-      - ./services/aoc-timer-map:/var/www/html
-      - ./db:/var/www/db
-      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
+      # Database persistence
+      - ./data/database:/app/database
+      # Backup storage
+      - ./data/backups:/app/backups
+      # Configuration
+      - ./.htpasswd:/app/.htpasswd:ro
     environment:
-      - BRANCH=main
-      - ENVIRONMENT=production
-    networks:
-      - aoctimermap-network
+      - PHP_MEMORY_LIMIT=256M
+      - NGINX_CLIENT_MAX_BODY_SIZE=10M
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  # Development/testing service for branches
-  aoctimermap-dev:
-    build: .
-    container_name: aoctimermap_dev
-    ports:
-      - "8080:80"  # Different port for testing
-    volumes:
-      - ./services/aoc-timer-map:/var/www/html
-      - ./db-dev:/var/www/db  # Separate dev database
-      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
-    environment:
-      - BRANCH=development
-      - ENVIRONMENT=development
-    networks:
-      - aoctimermap-network
-    restart: unless-stopped
-    profiles:
-      - dev  # Only start with --profile dev
-
-  # Feature branch testing service
-  aoctimermap-feature:
-    build: .
-    container_name: aoctimermap_feature
-    ports:
-      - "8081:80"  # Another port for feature testing
-    volumes:
-      - ./services/aoc-timer-map:/var/www/html
-      - ./db-feature:/var/www/db  # Separate feature database
-      - ./docker/nginx/.htpasswd:/etc/nginx/.htpasswd
-    environment:
-      - BRANCH=feature
-      - ENVIRONMENT=testing
-    networks:
-      - aoctimermap-network
-    restart: unless-stopped
-    profiles:
-      - feature  # Only start with --profile feature
-
-  # BookStack Wiki Service
-  bookstack:
-    image: linuxserver/bookstack:latest
-    container_name: bookstack
-    ports:
-      - "8082:80"  # BookStack on port 8082
-    volumes:
-      - ./bookstack-data:/config
-      - ./bookstack-backups:/backups
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - APP_URL=http://localhost:8082
-      - APP_KEY=base64:df2SHp9jQo9C9GVjGZhA1BfeyGiyG0pn2IlRBzuu8W4=
-      - DB_CONNECTION=mysql
-      - DB_HOST=bookstack-db
-      - DB_PORT=3306
-      - DB_USERNAME=bookstack
-      - DB_PASSWORD=bookstack_password
-      - DB_DATABASE=bookstack
-    depends_on:
-      - bookstack-db
-    networks:
-      - aoctimermap-network
-    restart: unless-stopped
-    profiles:
-      - bookstack  # Only start with --profile bookstack
-
-  # BookStack Database
-  bookstack-db:
-    image: mysql:8.0
-    container_name: bookstack-db
-    volumes:
-      - ./bookstack-db:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=root_password
-      - MYSQL_DATABASE=bookstack
-      - MYSQL_USER=bookstack
-      - MYSQL_PASSWORD=bookstack_password
-    networks:
-      - aoctimermap-network
-    restart: unless-stopped
-    profiles:
-      - bookstack
-
-networks:
-  aoctimermap-network:
-    driver: bridge
+volumes:
+  database:
+    driver: local
+  backups:
+    driver: local

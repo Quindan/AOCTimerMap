@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/map-filters/map-filters.component.scss"],
-  "sourcesContent": [".show-hide-filters {\n    position: absolute;\n    top: 10px;\n    left: 10px;\n    z-index: 500;\n}\n\n.filters-container {    \n    width: 400px;\n    position: absolute;\n    z-index: 1000;    \n    top:0;\n    bottom:0;\n    left:0;\n    background-color: aliceblue;\n}\n\n@media (max-width: 768px) { /* Pour les écrans de taille tablette et mobile */\n    .filters-container {\n        width: 100vw; /* Prend toute la largeur de l'écran */\n        height: 100vh; /* Optionnel si tu veux aussi que la hauteur prenne tout l'écran */\n    }\n}"],
-  "mappings": "iBAAA,CAAA,kBACI,SAAA,SACA,IAAA,KACA,KAAA,KACA,QAAA,IAGJ,CAAA,kBACI,MAAA,MACA,SAAA,SACA,QAAA,KACA,IAAA,EACA,OAAA,EACA,KAAA,EACA,iBAAA,QAGJ,OAAA,CAAA,SAAA,EAAA,OACI,CAXJ,kBAYQ,MAAA,MACA,OAAA",
-  "names": []
-}

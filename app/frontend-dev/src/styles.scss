@@ -1,0 +1,97 @@
+@use 'assets/styles/map';
+@use 'assets/styles/icons';
+@import "primeicons/primeicons.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-mdc-select-value-text {
+    text-transform: capitalize;
+}
+
+form {
+    .p-multiselect {
+        background-color: #e0e2ec;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-radius: 0%;
+        padding: 5px 0;
+        .p-multiselect-label.p-placeholder {
+            color: #44474e;
+        }   
+    }     
+    .p-select,.p-treeselect {
+        background-color: #e0e2ec;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-radius: 0%;
+        padding: 7px 0;
+        border-radius: 4px 4px 0 0;
+        margin-bottom: 20px;
+        .p-select-label,.p-treeselect-label {
+            color: #44474e;
+        } 
+
+    }
+}
+
+.p-multiselect-list-container {
+    scrollbar-width: thin;
+    scrollbar-color: #44474e transparent;    
+}
+
+.mat-mdc-select-panel {
+    scrollbar-width: thin;
+    scrollbar-color: #44474e transparent;    
+}
+
+// Special drops styling for named mob cards
+.special-drops {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  
+  h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #555;
+  }
+  
+  .drop-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    
+    .codex-tooltip-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    .drop-name {
+      font-weight: bold;
+      margin-right: 8px;
+      color: #333; // Fix white text on white background
+    }
+    
+    .drop-chance {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.75em;
+      font-weight: bold;
+      background-color: #007bff;
+      color: white;
+      margin-left: 4px;
+    }
+  }
+}

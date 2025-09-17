@@ -1,0 +1,81 @@
+{
+  "timestamp": "2025-01-17",
+  "method": "least squares affine",
+  "reference_points": [
+    {
+      "marker_id": 4,
+      "label": "REF wormwig",
+      "map_lat": -235.619140625,
+      "map_lng": 137.396484375,
+      "mob_name": "Wormwig",
+      "mob_slug": "wormwig",
+      "codex_x": -706687.07770862,
+      "codex_y": 520419.79012307,
+      "codex_z": 14586.910007906
+    },
+    {
+      "marker_id": 5,
+      "label": "REF Ysshokk",
+      "map_lat": -239.0,
+      "map_lng": 144.375,
+      "mob_name": "Ysshokk",
+      "mob_slug": "ysshokk",
+      "codex_x": -620215.59419062,
+      "codex_y": 562506.7933321,
+      "codex_z": 19574.960262209
+    },
+    {
+      "marker_id": 6,
+      "label": "REF olive",
+      "map_lat": -246.830078125,
+      "map_lng": 110.3359375,
+      "mob_name": "Olive Bootshredder",
+      "mob_slug": "olive-bootshredder",
+      "codex_x": -1047817.0598346,
+      "codex_y": 659603.75431168,
+      "codex_z": 12407.25126521
+    }
+  ],
+  "transformation_parameters": {
+    "a": 7.99540852279529e-05,
+    "b": 1.5388898494315918e-06,
+    "c": 4.824659951532306e-08,
+    "d": -8.042937419990937e-05,
+    "tx": 193.09813448314665,
+    "ty": -193.7280073357349,
+    "method": "least squares affine",
+    "rmse": 1.4180117738503443e-11
+  },
+  "validation_results": [
+    {
+      "mob_name": "Wormwig",
+      "expected_lat": -235.619140625,
+      "expected_lng": 137.396484375,
+      "predicted_lat": -235.61914062500244,
+      "predicted_lng": 137.3964843750024,
+      "error_lat": 2.4442670110147446e-12,
+      "error_lng": 2.3874235921539366e-12,
+      "total_error": 3.4167576193678358e-12
+    },
+    {
+      "mob_name": "Ysshokk",
+      "expected_lat": -239.0,
+      "expected_lng": 144.375,
+      "predicted_lat": -239.00000000001953,
+      "predicted_lng": 144.37500000001944,
+      "error_lat": 1.9525714378687553e-11,
+      "error_lng": 1.944044925039634e-11,
+      "total_error": 2.755330450336804e-11
+    },
+    {
+      "mob_name": "Olive Bootshredder",
+      "expected_lat": -246.830078125,
+      "expected_lng": 110.3359375,
+      "predicted_lat": -246.83007812498525,
+      "predicted_lng": 110.33593749998523,
+      "error_lat": 1.475086719437968e-11,
+      "error_lng": 1.4765078049094882e-11,
+      "total_error": 2.087092745380737e-11
+    }
+  ]
+}

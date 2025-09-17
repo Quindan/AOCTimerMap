@@ -1,0 +1,133 @@
+/* Enhanced Named Mob Popup Styles */
+.named-mob-popup {
+  max-width: 350px;
+  font-family: 'Roboto', sans-serif;
+  
+  h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+  }
+  
+  .mob-info {
+    margin-bottom: 15px;
+    
+    p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  }
+  
+  .special-drops {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 10px 0;
+    
+    h4 {
+      margin: 0 0 8px 0;
+      color: #495057;
+      font-size: 14px;
+    }
+    
+    .drop-item {
+      margin: 5px 0;
+      
+      .codex-tooltip-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #495057;
+        
+        &:hover {
+          color: #007bff;
+        }
+      }
+      
+      .drop-name {
+        font-weight: 500;
+      }
+      
+      .drop-rarity {
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        
+        &.common {
+          background: #6c757d;
+          color: white;
+        }
+        
+        &.uncommon {
+          background: #28a745;
+          color: white;
+        }
+        
+        &.rare {
+          background: #007bff;
+          color: white;
+        }
+        
+        &.epic {
+          background: #6f42c1;
+          color: white;
+        }
+        
+        &.legendary {
+          background: #fd7e14;
+          color: white;
+        }
+      }
+    }
+  }
+  
+  .mob-links {
+    margin: 10px 0;
+    
+    .codex-link {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 13px;
+      
+      &:hover {
+        background: #0056b3;
+        color: white;
+      }
+    }
+  }
+  
+  .debug-info {
+    border-top: 1px solid #dee2e6;
+    padding-top: 8px;
+    
+    details {
+      summary {
+        cursor: pointer;
+        font-size: 12px;
+        color: #6c757d;
+        
+        &:hover {
+          color: #495057;
+        }
+      }
+      
+      p {
+        margin: 3px 0;
+        font-size: 11px;
+        color: #6c757d;
+      }
+    }
+  }
+}
+
+/* Existing styles */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
