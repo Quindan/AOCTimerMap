@@ -6,6 +6,72 @@
     
     <!-- Map -->
     <div class="w-full bg-gray-200">
+        <!-- RETURN TO LANDING PAGE BUTTON -->
+        <button style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; background: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer;" onclick="window.location.href='/'">
+            RETURN TO LANDING PAGE
+        </button>
+        
+        <!-- COMPREHENSIVE DARK THEME -->
+        <style>
+          /* Dark theme for entire map area */
+          .w-full.bg-gray-200 {
+            background-color: #1a1a1a !important;
+          }
+          
+          /* Dark theme for filters and sidebar */
+          app-map-filters, .bg-gray-100 {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+          }
+          
+          app-map-filters * {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+          }
+          
+          /* Dark theme for all popups and cards */
+          .leaflet-popup-content-wrapper {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+          }
+          
+          .named-mob-popup {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+          }
+          
+          .named-mob-popup * {
+            color: #ffffff !important;
+          }
+          
+          .timer-controls {
+            background-color: #3a3a3a !important;
+          }
+          
+          .special-drops {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+          }
+          
+          .drop-name {
+            color: #ffffff !important;
+          }
+          
+          /* Timer text at 3 o'clock position */
+          .timer-text {
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            transform: translateY(-50%);
+            background: black;
+            color: yellow;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 999;
+          }
+        </style>
         <div id="map" style="height: 100vh; width: 100%;"></div>
         <button 
             (click)="refreshMap()"

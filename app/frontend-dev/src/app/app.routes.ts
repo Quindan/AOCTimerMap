@@ -2,25 +2,24 @@ import { Routes } from '@angular/router';
 import { MapComponent } from './map/map.component'; 
 import { MapResolver } from './map/map.resolver';
 import { NamedMobsComponent } from './named-mobs/named-mobs.component';
+import { LandingComponent } from './landing/landing.component';
 
 export const routes: Routes = [
   {
+    path: '',
+    component: LandingComponent, // Landing page at root
+  },
+  {
     path: 'map',
-    component: MapComponent, // Charge le composant Map
-    resolve: { markerList: MapResolver }, // Associe le resolver
+    component: MapComponent, // Map component
+    resolve: { markerList: MapResolver },
   },
   {
     path: 'named-mobs',
-    component: NamedMobsComponent, // Charge le composant Named Mobs
-  },
-  {
-    path: '',
-    component: MapComponent, // Default to map component for Angular app
-    resolve: { markerList: MapResolver },
+    component: NamedMobsComponent, // Named Mobs component
   },
   {
     path: '**',
-    component: MapComponent, // Default to map component for unknown paths
-    resolve: { markerList: MapResolver },
+    component: LandingComponent, // Default to landing page for unknown paths
   },
 ];

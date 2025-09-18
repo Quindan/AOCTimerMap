@@ -20,7 +20,7 @@
             "outputPath": "dist/aoc-map",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "baseHref": "/map/",
+            "baseHref": "/",
             "polyfills": [
               "zone.js"
             ],

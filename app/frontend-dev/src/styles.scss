@@ -8,6 +8,17 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/* BRIGHT RED TEST THEME - SHOULD BE VISIBLE */
+body, html {
+  background-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
+.mat-typography {
+  background-color: #ff0000 !important;
+  color: #ffffff !important;
+}
+
 .mat-mdc-select-value-text {
     text-transform: capitalize;
 }
@@ -84,14 +95,86 @@ form {
       color: #333; // Fix white text on white background
     }
     
-    .drop-chance {
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 0.75em;
-      font-weight: bold;
-      background-color: #007bff;
-      color: white;
-      margin-left: 4px;
-    }
+.drop-chance {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.75em;
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  margin-left: 4px;
+}
+
+/* Named mob marker categories */
+.marker-initiate .named-mob-icon {
+  color: #10B981 !important; /* Green (Uncommon) */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.marker-adept .named-mob-icon {
+  color: #3B82F6 !important; /* Blue (Rare) */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.marker-radiant .named-mob-icon {
+  color: #FCD34D !important; /* Yellow (Epic) */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.marker-no-drops .named-mob-icon {
+  color: #9CA3AF !important; /* Grey (No drops) */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.marker-initiate .badge-named {
+  background-color: #10B981 !important;
+}
+
+.marker-adept .badge-named {
+  background-color: #3B82F6 !important;
+}
+
+.marker-radiant .badge-named {
+  background-color: #FCD34D !important;
+}
+
+.marker-no-drops .badge-named {
+  background-color: #9CA3AF !important;
+}
+
+/* Timer overlay styles */
+.timer-overlay {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.9);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 24px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.4);
+  z-index: 10;
+}
+
+.named-mob-icon {
+  position: relative;
+  z-index: 2;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
   }
 }

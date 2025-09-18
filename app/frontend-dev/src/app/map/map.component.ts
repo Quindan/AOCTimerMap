@@ -70,7 +70,6 @@ export class MapComponent implements AfterViewInit {
       .then(data => {
         if (data.success) {
           console.log(`Mob ${mobId} visibility updated: ${data.message}`);
-          // Refresh the page to update the map
           window.location.reload();
         } else {
           console.error('Failed to update mob visibility:', data.error);
@@ -82,6 +81,124 @@ export class MapComponent implements AfterViewInit {
         alert('Error updating mob visibility: ' + error);
       });
     };
+
+    // Define global function for timer reset
+    (window as any).resetTimer = (mobId: number) => {
+      console.log(`Resetting timer for mob ${mobId}`);
+      
+      fetch('/named_mobs_api.php/named-mobs/reset-timer', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa('invicta:invicta')
+        },
+        body: JSON.stringify({ mob_id: mobId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Timer reset for mob ${mobId}: ${data.message}`);
+          // Refresh markers to show updated timer
+          this.#mapService.refreshNamedMobMarkers();
+        } else {
+          console.error('Failed to reset timer:', data.error);
+          alert('Failed to reset timer: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error resetting timer:', error);
+        alert('Error resetting timer: ' + error);
+      });
+    };
+
+    // Define global function for notification toggle
+    (window as any).toggleNotification = (mobId: number, enabled: boolean) => {
+      console.log(`Toggling notification for mob ${mobId}: ${enabled}`);
+      
+      fetch('/named_mobs_api.php/named-mobs/notify', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa('invicta:invicta')
+        },
+        body: JSON.stringify({ mob_id: mobId, notify_when_ready: enabled ? 1 : 0 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Notification ${enabled ? 'enabled' : 'disabled'} for mob ${mobId}`);
+          // Check if mob is ready and should notify
+          if (enabled) {
+            this.checkMobNotifications();
+          }
+        } else {
+          console.error('Failed to update notification:', data.error);
+          alert('Failed to update notification: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error updating notification:', error);
+        alert('Error updating notification: ' + error);
+      });
+    };
+  }
+
+  private checkMobNotifications(): void {
+    // Check for mobs that are ready and should notify
+    // This will be called periodically by the timer refresh
+    fetch('/named_mobs_api.php', {
+      headers: {
+        'Authorization': 'Basic ' + btoa('invicta:invicta')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.data) {
+        data.data.forEach((mob: any) => {
+          if (mob.notify_when_ready && mob.timer_active && mob.last_killed_time) {
+            const currentTime = Math.floor(Date.now() / 1000);
+            const elapsedSeconds = currentTime - mob.last_killed_time;
+            
+            // Parse minimum respawn time
+            let minTimerMinutes = 15;
+            if (mob.respawn_time) {
+              const rangeMatch = mob.respawn_time.match(/(\d+)\s*-\s*(\d+)/);
+              if (rangeMatch) {
+                minTimerMinutes = parseInt(rangeMatch[1]);
+              }
+            }
+            
+            const timerDurationSeconds = minTimerMinutes * 60;
+            
+            // If timer is complete, play notification
+            if (elapsedSeconds >= timerDurationSeconds) {
+              this.playNotificationSound(mob.name);
+              // Disable notification to avoid spam
+              (window as any).toggleNotification(mob.id, false);
+            }
+          }
+        });
+      }
+    })
+    .catch(error => console.error('Error checking notifications:', error));
+  }
+
+  private playNotificationSound(mobName: string): void {
+    // Create audio notification
+    try {
+      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+Dytmg'); 
+      audio.play().catch(e => console.log('Audio play failed:', e));
+      
+      // Show browser notification if permission granted
+      if (Notification.permission === 'granted') {
+        new Notification(`🏆 ${mobName} is ready!`, {
+          body: 'Respawn timer completed',
+          icon: '/favicon.ico'
+        });
+      }
+    } catch (error) {
+      console.log('Notification failed:', error);
+    }
   }
 
   private initMap(): void {
@@ -126,6 +243,8 @@ export class MapComponent implements AfterViewInit {
           this.updateMarkersGatherAlert();
           // Update map if filters are selected
           this.#mapService.showFilteredMap();
+          // Check for timer notifications
+          this.checkMobNotifications();
         }),
         takeUntilDestroyed(this.#destroyRef)
       ).subscribe();
@@ -404,3 +523,4 @@ export class MapComponent implements AfterViewInit {
 
 }
 
+// Test change jeu. 18 sept. 2025 15:51:41 CEST

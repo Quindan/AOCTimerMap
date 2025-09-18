@@ -55,30 +55,22 @@ def extract_real_items_from_json(content, mob_name):
                                             item_code = item.get('name', '')
                                             min_rarity = int(item.get('minRarity', '1'))
                                             
-                                            # EXCLUDE recipes and materials - ONLY keep gear
-                                            if ('Recipe:' in item_name or 
-                                                'Fragment' in item_name or 
-                                                'Spool' in item_name or
-                                                'Stick' in item_name or
-                                                'Hide' in item_name or
-                                                'Bone' in item_name or
-                                                'Setting' in item_name or
-                                                'Gem' in item_name or
-                                                'Essence' in item_name or
-                                                'Emblem' in item_name or
-                                                item_code.startswith('Resource_') or
-                                                item_code.startswith('Consumable_Recipe_')):
+                                            # EXCLUDE recipes and materials based on ITEM CODE CATEGORIES - ONLY keep gear
+                                            if (item_code.startswith('Resource_') or
+                                                item_code.startswith('Consumable_Recipe_') or
+                                                item_code.startswith('Certificate_')):
                                                 continue
                                             
-                                            # ONLY include actual gear (weapons, armor, accessories)
+                                            # ONLY include actual gear (weapons, armor, accessories) AND bags
                                             if not (item_code.startswith('Gear_Weapon_') or 
                                                    item_code.startswith('Gear_Armor_') or 
-                                                   item_code.startswith('Gear_Accessory_')):
+                                                   item_code.startswith('Gear_Accessory_') or
+                                                   item_code.startswith('Bag_')):
                                                 continue
                                                 
                                             item_url = f"https://ashescodex.com/db/item/{item_code}"
                                             
-                                            # Determine item type
+                                            # Determine item type - INCLUDE BAG SUPPORT
                                             item_type = "Unknown"
                                             if "Gear_Weapon_" in item_code:
                                                 item_type = "Weapon"
@@ -86,6 +78,8 @@ def extract_real_items_from_json(content, mob_name):
                                                 item_type = "Accessory"
                                             elif "Gear_Armor_" in item_code:
                                                 item_type = "Armor"
+                                            elif "Bag_" in item_code:
+                                                item_type = "Bag"
                                             
                                             # Calculate drop chance from weights
                                             drop_chance = "Unknown"

@@ -91,6 +91,10 @@ try {
         case 'PUT':
             if (strpos($path, '/named-mobs/timer') !== false) {
                 handleUpdateTimer($db);
+            } else if (strpos($path, '/named-mobs/reset-timer') !== false) {
+                handleResetTimer($db);
+            } else if (strpos($path, '/named-mobs/notify') !== false) {
+                handleUpdateNotification($db);
             } else {
                 // Default PUT action - update visibility
                 handleUpdateVisibility($db);
@@ -124,7 +128,8 @@ function handleGetAllNamedMobs($db) {
     
     $sql = "SELECT nm.id, nm.name, nm.slug, nm.level, nm.level_range, nm.respawn_time, nm.respawn_minutes, nm.codex_url, 
                    nm.location_x, nm.location_y, nm.location_z, nm.type, 
-                   nm.map_lat, nm.map_lng, nm.coordinate_source, nm.is_hidden,
+                   nm.map_lat, nm.map_lng, nm.coordinate_source, nm.is_hidden, nm.special_drop_category,
+                   nm.last_killed_time, nm.timer_active, nm.notify_when_ready,
                    nm.created_at, nm.updated_at 
             FROM named_mobs nm WHERE nm.is_hidden = 0";
     $params = [];
@@ -178,7 +183,7 @@ function handleSearchNamedMobs($db) {
     
     $sql = "SELECT nm.id, nm.name, nm.slug, nm.level, nm.level_range, nm.respawn_time, nm.respawn_minutes, nm.codex_url, 
                    nm.location_x, nm.location_y, nm.location_z, nm.type, 
-                   nm.map_lat, nm.map_lng, nm.coordinate_source,
+                   nm.map_lat, nm.map_lng, nm.coordinate_source, nm.special_drop_category,
                    nm.created_at, nm.updated_at 
             FROM named_mobs nm WHERE nm.name LIKE ? OR nm.slug LIKE ?";
     $params = ["%$query%", "%$query%"];
@@ -518,4 +523,63 @@ function handleUpdateVisibility($db) {
         ]);
     }
 }
+function handleResetTimer($db) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $mobId = $input['mob_id'] ?? null;
+    
+    if (!$mobId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Mob ID is required']);
+        return;
+    }
+    
+    $currentTime = time();
+    
+    $stmt = $db->prepare("UPDATE named_mobs SET last_killed_time = ?, timer_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+    $result = $stmt->execute([$currentTime, $mobId]);
+    
+    if ($result) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Timer reset successfully',
+            'timestamp' => $currentTime
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to reset timer'
+        ]);
+    }
+}
+
+function handleUpdateNotification($db) {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $mobId = $input['mob_id'] ?? null;
+    $notifyWhenReady = $input['notify_when_ready'] ?? null;
+    
+    if (!$mobId || $notifyWhenReady === null) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Mob ID and notify_when_ready are required']);
+        return;
+    }
+    
+    $stmt = $db->prepare("UPDATE named_mobs SET notify_when_ready = ? WHERE id = ?");
+    $result = $stmt->execute([$notifyWhenReady, $mobId]);
+    
+    if ($result) {
+        $status = $notifyWhenReady ? 'enabled' : 'disabled';
+        echo json_encode([
+            'success' => true,
+            'message' => "Notification $status successfully"
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Failed to update notification'
+        ]);
+    }
+}
+
 ?>
