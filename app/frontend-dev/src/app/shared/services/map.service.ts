@@ -280,12 +280,12 @@ export class MapService {
         </div>
         ${specialDropsHtml}
         <div class="mob-links">
-          ${mob.codex_url ? `<p><a href="${mob.codex_url}" target="_blank" class="codex-link">📖 View in Codex</a></p>` : ''}
+          ${mob.codex_url ? `<p><a href="${mob.codex_url}" target="_blank" class="codex-link codex-tooltip-link">📖 View in Codex</a></p>` : ''}
         </div>
         <div class="mob-controls" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
           <label style="display: flex; align-items: center; font-size: 0.9em; color: #666;">
             <input type="checkbox" id="hide-${mob.id}" style="margin-right: 8px;" 
-                   onchange="toggleMobVisibility(${mob.id}, this.checked)">
+                   onchange="window.hideMob(${mob.id}, this.checked)">
             Hide this named mob from map
           </label>
         </div>

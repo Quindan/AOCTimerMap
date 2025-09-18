@@ -35,6 +35,11 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
+              },
+              {
+                "glob": "mob-visibility.js",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [

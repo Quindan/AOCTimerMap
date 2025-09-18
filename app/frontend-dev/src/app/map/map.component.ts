@@ -49,7 +49,39 @@ export class MapComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.initMap();
-    this.mapClickEvent();    
+    this.mapClickEvent();
+    this.setupGlobalFunctions();
+  }
+
+  private setupGlobalFunctions(): void {
+    // Define global function for mob visibility toggle
+    (window as any).hideMob = (mobId: number, isHidden: boolean) => {
+      console.log(`Hiding mob ${mobId}: ${isHidden}`);
+      
+      fetch('/named_mobs_api.php', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa('invicta:invicta')
+        },
+        body: JSON.stringify({ mob_id: mobId, is_hidden: isHidden ? 1 : 0 })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log(`Mob ${mobId} visibility updated: ${data.message}`);
+          // Refresh the page to update the map
+          window.location.reload();
+        } else {
+          console.error('Failed to update mob visibility:', data.error);
+          alert('Failed to update mob visibility: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error updating mob visibility:', error);
+        alert('Error updating mob visibility: ' + error);
+      });
+    };
   }
 
   private initMap(): void {

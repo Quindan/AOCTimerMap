@@ -1,11 +1,10 @@
 /**
  * Global function for toggling named mob visibility
- * Called from the checkbox in named mob popups
  */
 window.toggleMobVisibility = function(mobId, isHidden) {
     console.log(`Toggling visibility for mob ${mobId} to ${isHidden}`);
     
-    fetch(`/named-mobs/visibility`, {
+    fetch(`/named_mobs_api.php`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
