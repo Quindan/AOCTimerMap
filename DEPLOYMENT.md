@@ -157,7 +157,46 @@ ssh root@84.247.141.193 "
 - **Named Mobs**: 230 entries
 - **Special Items**: 256 entries  
 - **API Response**: 228 visible mobs
-- **Example**: Forgelord Zammer with 2 items verified
+- **Categorization**: Based on item grades (not mob levels)
+  - **Initiate**: 7 mobs (Common items) - Grey markers
+  - **Adept**: 202 mobs (Uncommon items) - Blue markers  
+  - **Radiant**: 0 mobs (Rare+ items) - Yellow markers
+  - **No Special Drop**: 19 mobs - Grey markers
+
+### Mob Categorization Logic
+
+**IMPORTANT**: Mobs are categorized by their **item GRADE**, not item rarity or mob level.
+
+#### Grade vs Rarity Distinction
+- **Rarity**: Visual quality (Common, Uncommon, Rare, Epic, Legendary) - shown as item border color
+- **Grade**: Gameplay tier (Initiate, Adept, Radiant) - determines marker color and categorization
+
+#### Color Scheme (Based on Item Grades)
+- **Grey**: No special drops (19 mobs)
+- **Green**: Initiate grade items (7 mobs) - "uncommon-like color for initiate"  
+- **Blue**: Adept grade items (203 mobs) - "rare-like color for adept"
+- **Yellow**: Radiant grade items (1 mob) - "heroic-like color for radiant"
+
+#### Categorization Process
+1. Extract **Grade** from Codex item pages (not rarity)
+2. Categorize mob by **highest grade** of their special items
+3. Apply color scheme based on grade tier
+
+#### Grade Extraction Examples
+```bash
+# Fire-Scarred Chestplate: Uncommon rarity BUT Radiant grade
+curl -s "https://ashescodex.com/db/item/Gear_Armor_Heavy_Cairn_Chest" | grep -A2 "Grade:" 
+# Returns: "Radiant" → Yellow marker
+
+# The Silvertooth: Rare rarity BUT Adept grade  
+curl -s "https://ashescodex.com/db/item/Gear_Weapon_Sword_1H_Silvertooth" | grep -A2 "Grade:"
+# Returns: "Adept" → Blue marker
+```
+
+### Example Corrections
+- **Warlord Silvertooth**: Level 14, drops "The Silvertooth" (Rare rarity, **Adept grade**) → Blue marker
+- **Cairn**: Drops "Fire-Scarred Chestplate" (Uncommon rarity, **Radiant grade**) → Yellow marker
+- **Common items**: Usually Initiate grade → Green markers
 
 ## 🌐 Access Information
 - **URL**: http://84.247.141.193
